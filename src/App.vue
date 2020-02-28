@@ -1,28 +1,42 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <!--<header>
+      <span>Vue.js PWA</span>
+    </header>-->
+    <main>
+        <router-view></router-view>
+    </main>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import firebase from 'firebase/app';
+import 'firebase/database';
+import Login from './components/Login'
+import cfg from './config'
+
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
+    name: 'app',
+    beforeCreate() {
+      const firebaseConfig = {
+          apiKey: cfg.firebase.apiKey,
+          authDomain: cfg.firebase.authDomain,
+          databaseURL: cfg.firebase.databaseURL,
+          storageBucket: cfg.firebase.storageBucket,
+      }
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig)
+    },
+    mounted() {
+        this.$router.push({ path: 'login' })
+    },
+    components: {
+        Login
+    }
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+
 </style>
