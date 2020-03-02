@@ -1,28 +1,33 @@
 <template>
     <div>
-        <nav>
-            <div class="nav-wrapper">
-                <a href="#" class="brand-logo">{{ this.currentListName }}</a>
-                <ul class="right">
-                    <li><a @click="refresh" href="#"><i class="material-icons">refresh</i></a></li>
-                </ul>
-            </div>
-        </nav>
+        <div class="navbar-fixed">
+            <nav>
+                <div class="nav-wrapper">
+                    <a href="#" class="brand-logo">{{ this.currentListName }}</a>
+                    <ul class="right">
+                        <li><a @click="refresh" href="#"><i class="material-icons">refresh</i></a></li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
         <div id="spacer"></div>
-        <div :key="index" v-for="(cat, index) in categories" class="task-container">
-            <h4>{{ cat }}</h4>
-            <div :key="task.Uid" v-for="task in taskMap.get(cat)">
-                <div class="row">
-                    <div class="task-title col s10 m10">
-                        {{ task.Title }}
+        <div class="task-container">
+            <div :key="index" v-for="(cat, index) in categories">
+                <h4>{{ cat }}</h4>
+                <div :key="task.Uid" v-for="task in taskMap.get(cat)">
+                    <div class="row">
+                        <div class="task-title col s10 m10">
+                            {{ task.Title }}
+                        </div>
+                        <a class="btn-floating btn-small waves-effect waves-light green" @click="deleteTask(task)">
+                            <i class="material-icons">done</i>
+                        </a>
                     </div>
-                    <a class="btn-floating btn-small waves-effect waves-light green" @click="deleteTask(task)">
-                        <i class="material-icons">done</i>
-                    </a>
                 </div>
             </div>
+            <div id="bottom-spacer"></div>
         </div>
-        <div id="bottom-spacer"></div>
+
 
         <!-- menu button -->
         <div class="fixed-action-btn click-to-toggle">
@@ -78,7 +83,7 @@
                            id="new-task-name">
                     <label for="new-task-name">Task Title</label>
                 </div>
-                <div>
+                <!--<div>
                     <p>Category: {{ categoryForNewTask }}</p>
                 </div>
                 <div class="row">
@@ -87,12 +92,23 @@
                     </a>
                 </div>
 
-                <!-- dropdown-->
+                &lt;!&ndash; dropdown&ndash;&gt;
                 <ul id='cats-dropdown' class='dropdown-content'>
                     <li :key="category" v-for="category in categories">
                         <a href="#" @click="setCategoryForNewTask(category)">{{ category }}</a>
                     </li>
-                </ul>
+                </ul>-->
+                <div class="input-field col s12 cats">
+                    <select>
+                        <option :value="category" :key="category"
+                                v-for="category in categories"
+                                @click="setCategoryForNewTask(category)"
+                        >
+                            {{ category }}
+                        </option>
+                    </select>
+                    <label>Category</label>
+                </div>
             </div>
             <div class="modal-footer">
                 <a href="#" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
@@ -160,8 +176,11 @@
             elems = document.querySelectorAll('.modal')
             M.Modal.init(elems, {})
 
-            elems = document.querySelectorAll('.dropdown-trigger');
-            M.Dropdown.init(elems, {});
+            // elems = document.querySelectorAll('.dropdown-trigger');
+            // M.Dropdown.init(elems, {});
+
+            elems = document.querySelectorAll('select');
+            M.FormSelect.init(elems, {});
 
             let taskList = localStorage.getItem('taskList')
 
@@ -240,10 +259,10 @@
 
 <style scoped>
     #spacer {
-        margin-top: 20px;
+        padding-top: 20px;
     }
     #bottom-spacer {
-        margin-bottom: 60px;
+        padding-bottom: 60px;
     }
     #quick-add-btn {
         position: fixed;
@@ -251,7 +270,8 @@
         right: 90px;
     }
     .task-container {
-        margin-left: 10px;
+        padding-left: 10px;
+        background-color: #fff;
     }
     .task-title {
         border: 1px solid #bbc;

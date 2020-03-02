@@ -38,5 +38,11 @@ export default {
 </script>
 
 <style>
-
+    body {
+        background-color: #ee6e73;
+    }
+    #app {
+        background-color: #fff;
+        height: 100vh;
+    }
 </style>

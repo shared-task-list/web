@@ -13,7 +13,10 @@ export default {
             return state.taskMap
         },
         categories(state) {
-            return state.categories
+            let arr = Array.from(state.categories)
+            arr = arr.filter((i) => i !== 'Без категории')
+            arr.unshift('Без категории')
+            return arr
         },
     },
     mutations: {

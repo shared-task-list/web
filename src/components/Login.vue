@@ -4,8 +4,8 @@
             <img id="logo" alt="Vue logo" src="../assets/logo.png">
         </div>
 
-        <div id="form-container" class="row justify-content-md-center">
-            <form action="" class=".col s12 m3">
+        <div id="form-container" class="row">
+            <form action="" class="col s12 m3 offset-m4">
                 <div>
                     <div v-show="isShowAlert" class="alert alert-danger" role="alert">
                         {{ alertText }}
@@ -63,19 +63,21 @@
                 </div>
             </form>
         </div>
-        <hr />
-        <div id="last-lists-container">
-            <h5>
-                Last Lists
-            </h5>
-            <div id="last-lists" :key="index" v-for="(list, index) in lastLists">
-                <div class="row">
-                    <div class="task-title col s10 m10" @click="openLastList(list)">
-                        {{ list.name }}
+        <div class="row">
+            <div id="last-lists-container" v-if="lastLists.length > 0" class="col s12 m3 offset-m4">
+                <hr/>
+                <h5>
+                    Last Lists
+                </h5>
+                <div id="last-lists" :key="index" v-for="(list, index) in lastLists">
+                    <div class="row">
+                        <div class="task-title col s10 m10" @click="openLastList(list)">
+                            {{ list.name }}
+                        </div>
+                        <a class="btn-floating btn-small waves-effect waves-light red" @click="removeList(list)">
+                            <i class="material-icons">delete</i>
+                        </a>
                     </div>
-                    <a class="btn-floating btn-small waves-effect waves-light red" @click="removeList(list)">
-                        <i class="material-icons">delete</i>
-                    </a>
                 </div>
             </div>
         </div>
@@ -224,7 +226,8 @@
         margin: 0 40px;
     }
     #logo-container {
-        margin-top: 20px;
+        padding-top: 20px;
+        /*padding-right: 40px;*/
         text-align: center;
     }
     #logo {
@@ -235,7 +238,7 @@
         text-align: center;
     }
     #last-lists-container {
-        margin: 0 20px;
+        /*margin: 0 20px;*/
     }
     #last-lists{
         margin-top: 20px;
