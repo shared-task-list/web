@@ -1,8 +1,10 @@
+import cfg from  '../../config'
+const _ = require('lodash');
+
 export default {
     namespaced: true,
     state: {
         tasks: [],
-        categories: [],
         taskMap: new Map()
     },
     getters: {
@@ -25,20 +27,21 @@ export default {
             let cats = new Set()
 
             for (let task of tasks) {
-                if (task.Category === null || task.Category === '') {
-                    task.Category = 'Без категории'
+                if (task.Category === '') {
+                    task.Category = cfg.noCategory
                 }
                 cats.add(task.Category)
             }
             for (let cat of cats) {
-                if (cat === 'Без категории') {
-                    state.taskMap.set('Без категории', tasks.filter(task => task.Category === 'Без категории'))
+                if (cat === cfg.noCategory) {
+                    state.taskMap.set(cfg.noCategory, tasks.filter(task => task.Category === cfg.noCategory))
                     continue
                 }
-                state.taskMap.set(cat, tasks.filter(task => task.Category === cat))
-            }
 
-            state.categories = Array.from(cats)
+                let taskArr = tasks.filter(task => task.Category === cat)
+                let sorted = _.orderBy(taskArr, [(item) => Date.parse(item.Timestamp), 'asc'])
+                state.taskMap.set(cat, sorted)
+            }
         },
         removeTask(state, task) {
             state.tasks = state.tasks.filter(item => item.Uid !== task.Uid)
@@ -76,14 +79,11 @@ export default {
             state.tasks = []
             state.taskMap.clear()
         },
-        addCategory(state, category) {
-            state.categories.push(category)
-        },
     },
     actions: {
         loadTasks(store, tasks) {
             store.commit('loadTasks', tasks)
-            localStorage.setItem('cachedTasks', JSON.stringify(tasks))
+            localStorage.setItem(cfg.lsKey.cachedTasks, JSON.stringify(tasks))
         },
         removeTask(store, task) {
             store.commit('removeTask', task)
@@ -93,9 +93,6 @@ export default {
         },
         clear(store) {
             store.commit('clear')
-        },
-        addCategory(store, category) {
-            store.commit('addCategory', category)
         },
     }
 };

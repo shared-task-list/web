@@ -3,14 +3,21 @@ import VueRouter from 'vue-router';
 
 import TaskList from "./components/TaskList";
 import Login from "./components/Login";
+import TaskDetail from "./components/TaskDetail";
 
 
 Vue.use(VueRouter);
 
 const routes = [
     {
+        name: 'taskList',
         path: '/tasks',
         component: TaskList
+    },
+    {
+        name: 'taskDetail',
+        path: '/tasks/:id',
+        component: TaskDetail
     },
     {
         path: '/login',

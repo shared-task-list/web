@@ -64,7 +64,7 @@
             </form>
         </div>
         <div class="row">
-            <div id="last-lists-container" v-if="lastLists.length > 0" class="col s12 m3 offset-m4">
+            <div v-if="lastLists.length > 0" class="col s12 m3 offset-m4">
                 <hr/>
                 <h5>
                     Last Lists
@@ -91,6 +91,7 @@
     import { fromByteArray } from 'base64-js'
     import { mapActions, mapGetters } from "vuex";
     import { v4 as uuidv4 } from 'uuid'
+    import cfg from '../config'
 
 
     export default {
@@ -110,19 +111,19 @@
             this.loadLastLists()
             this.db = firebase.database()
 
-            let username = localStorage.getItem('login')
-            let taskList = localStorage.getItem('taskList')
-            let lastList = localStorage.getItem('lastList')
+            let username = localStorage.getItem(cfg.lsKey.login)
+            let taskList = localStorage.getItem(cfg.lsKey.taskList)
+            let lastList = localStorage.getItem(cfg.lsKey.lastList)
 
-            if (lastList !== 'null' && lastList !== null && lastList !== undefined) {
+            if (lastList !== 'null' && lastList !== '' && lastList !== null) {
                 this.setListName(lastList)
                 this.$router.push({ path: 'tasks' })
                 return
             }
-            if (username !== 'null' && username !== null && username !== undefined) {
+            if (username !== 'null' && username !== '' && username !== null) {
                 this.login = username
             }
-            if (taskList !== 'null' && taskList !== null && taskList !== undefined) {
+            if (taskList !== 'null' && taskList !== '' && taskList !== null) {
                 this.taskList = taskList
             }
 
@@ -159,7 +160,7 @@
                     if (isExistList) {
                         this.setListName(listHash)
                         this.addNewLastList(listHash)
-                        localStorage.setItem('lastList', listHash)
+                        localStorage.setItem(cfg.lsKey.lastList, listHash)
                     }
 
                     closure(isExistList)
@@ -193,8 +194,8 @@
                 event.preventDefault()
                 this.checkExist((isExistList) => {
                     if (isExistList) {
-                        localStorage.setItem('login', this.login)
-                        localStorage.setItem('taskList',  this.taskList)
+                        localStorage.setItem(cfg.lsKey.login, this.login)
+                        localStorage.setItem(cfg.lsKey.taskList,  this.taskList)
                         this.$router.push({ path: 'tasks' })
                     } else {
                         this.alertText = 'Invalid Login or Password'
@@ -207,13 +208,13 @@
                 let item = {
                     name: this.taskList,
                     hash: listHash,
-                    date:new Date().getTime()
+                    date: new Date().getTime()
                 }
                 this.addLastList(item)
             },
             openLastList(list) {
-                localStorage.setItem('lastList', list.hash)
-                localStorage.setItem('taskList',  list.name)
+                localStorage.setItem(cfg.lsKey.lastList, list.hash)
+                localStorage.setItem(cfg.lsKey.taskList,  list.name)
                 this.setListName(list.hash)
                 this.$router.push({ path: 'tasks' })
             }
@@ -227,7 +228,6 @@
     }
     #logo-container {
         padding-top: 20px;
-        /*padding-right: 40px;*/
         text-align: center;
     }
     #logo {
@@ -236,9 +236,6 @@
     }
     #button-container {
         text-align: center;
-    }
-    #last-lists-container {
-        /*margin: 0 20px;*/
     }
     #last-lists{
         margin-top: 20px;

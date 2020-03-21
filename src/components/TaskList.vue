@@ -1,27 +1,31 @@
 <template>
     <div>
-        <div class="navbar-fixed">
+        <div>
             <nav>
                 <div class="nav-wrapper">
                     <a href="#" class="brand-logo">{{ this.currentListName }}</a>
                     <ul class="right">
-                        <li><a @click="refresh" href="#"><i class="material-icons">refresh</i></a></li>
+                        <li><a @click="setTasks"><i class="material-icons">refresh</i></a></li>
                     </ul>
                 </div>
             </nav>
         </div>
         <div id="spacer"></div>
         <div class="task-container">
-            <div :key="index" v-for="(cat, index) in categories">
-                <h4>{{ cat }}</h4>
-                <div :key="task.Uid" v-for="task in taskMap.get(cat)">
-                    <div class="row">
-                        <div class="task-title col s10 m10">
-                            {{ task.Title }}
+            <div :key="cat" v-for="cat in categories">
+                <div>
+                    <h4>{{ cat }}</h4>
+                    <div :key="task.Uid" v-for="task in taskMap.get(cat)">
+                        <div class="row">
+                            <router-link :to="{ name: 'taskDetail', params: { id: task.Uid }}">
+                                <div class="task-title col s10 m10">
+                                    {{ task.Title }}
+                                </div>
+                            </router-link>
+                            <a class="btn-floating btn-small waves-effect waves-light green" @click="deleteTask(task)">
+                                <i class="material-icons">done</i>
+                            </a>
                         </div>
-                        <a class="btn-floating btn-small waves-effect waves-light green" @click="deleteTask(task)">
-                            <i class="material-icons">done</i>
-                        </a>
                     </div>
                 </div>
             </div>
@@ -53,6 +57,7 @@
                 <h4>New Category</h4>
                     <div class="input-field">
                         <input required
+                               autofocus
                                v-model="newCategory"
                                type="text"
                                class="validate"
@@ -77,38 +82,22 @@
                 <h4>New Task</h4>
                 <div class="input-field">
                     <input required
+                           autofocus
                            v-model="newTaskTitle"
                            type="text"
                            class="validate"
                            id="new-task-name">
                     <label for="new-task-name">Task Title</label>
                 </div>
-                <!--<div>
-                    <p>Category: {{ categoryForNewTask }}</p>
-                </div>
-                <div class="row">
-                    <a class='dropdown-trigger btn col s12 m12' href='#' data-target='cats-dropdown'>
-                        Choose Category
-                    </a>
-                </div>
-
-                &lt;!&ndash; dropdown&ndash;&gt;
-                <ul id='cats-dropdown' class='dropdown-content'>
-                    <li :key="category" v-for="category in categories">
-                        <a href="#" @click="setCategoryForNewTask(category)">{{ category }}</a>
-                    </li>
-                </ul>-->
-                <div class="input-field col s12 cats">
-                    <select>
-                        <option :value="category" :key="category"
-                                v-for="category in categories"
-                                @click="setCategoryForNewTask(category)"
-                        >
-                            {{ category }}
-                        </option>
-                    </select>
-                    <label>Category</label>
-                </div>
+                <p :key="category" v-for="category in categories">
+                    <label>
+                        <input name="group1"
+                               type="radio"
+                               :checked="categoryForNewTask === category"
+                               @click="setCategoryForNewTask(category)" />
+                        <span>{{ category }}</span>
+                    </label>
+                </p>
             </div>
             <div class="modal-footer">
                 <a href="#" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
@@ -129,6 +118,7 @@
     import 'firebase/database'
     import M from 'materialize-css'
     import { v4 as uuidv4 } from 'uuid'
+    import cfg from '../config'
 
 
     export default {
@@ -139,27 +129,21 @@
                 newCategory: '',
                 newTaskTitle: '',
                 currentListName: '',
-                categoryForNewTask: 'Без категории'
+                categoryForNewTask: cfg.noCategory
             };
         },
         mounted() {
-            let cachedTasks = JSON.parse(localStorage.getItem('cachedTasks'))
+            // set cached tasks
+            let cachedTasks = JSON.parse(localStorage.getItem(cfg.lsKey.cachedTasks))
 
             if (cachedTasks !== null && cachedTasks.length !== 0) {
+                this.setCategories(cachedTasks)
                 this.loadTasks(cachedTasks)
             }
 
+            // init firebase database
             this.db = firebase.database();
-            this.db.ref(this.listName).once('value', (snapshot) => {
-                this.clear()
-                let tasks = []
-                snapshot.forEach((childSnapshot) => {
-                    if (childSnapshot.val().Comment !== 'service task') {
-                        tasks.push(childSnapshot.val())
-                    }
-                })
-                this.loadTasks(tasks)
-            })
+            this.setTasks()
             this.db.ref(this.listName).on('child_added', (snapshot) => {
                 this.addTask(snapshot.val())
             })
@@ -167,6 +151,7 @@
                 this.removeTask(snapshot.val())
             })
 
+            // init material elements
             let elems = document.querySelectorAll('.fixed-action-btn')
             M.FloatingActionButton.init(elems, {
                 direction: 'top',
@@ -176,27 +161,23 @@
             elems = document.querySelectorAll('.modal')
             M.Modal.init(elems, {})
 
-            // elems = document.querySelectorAll('.dropdown-trigger');
-            // M.Dropdown.init(elems, {});
-
-            elems = document.querySelectorAll('select');
-            M.FormSelect.init(elems, {});
-
-            let taskList = localStorage.getItem('taskList')
+            // list name for nav
+            let taskList = localStorage.getItem(cfg.lsKey.taskList)
 
             if (taskList !== null && taskList !== undefined) {
-                this.currentListName = localStorage.getItem('taskList')
+                this.currentListName = taskList
             }
         },
         computed: {
             ...mapGetters("task_list", {
                 tasks: "tasks",
                 taskMap: "taskMap",
-                categories: "categories",
+
             }),
             ...mapGetters("common", {
                 listName: "listName",
-            })
+                categories: "categories",
+            }),
         },
         methods: {
             ...mapActions("task_list", {
@@ -204,6 +185,9 @@
                 removeTask: "removeTask",
                 addTask: "addTask",
                 clear: "clear",
+            }),
+            ...mapActions("common", {
+                setCategories: "setCategories",
                 addCategory: "addCategory",
             }),
             addNewCategory() {
@@ -211,12 +195,13 @@
                 this.newCategory = ''
             },
             exit() {
-                localStorage.setItem('taskList', null)
-                localStorage.setItem('lastList', null)
+                localStorage.setItem(cfg.lsKey.taskList, '')
+                localStorage.setItem(cfg.lsKey.lastList, '')
+                this.clear()
                 this.$router.push({ path: 'login' })
             },
             createTask() {
-                let username = localStorage.getItem('login')
+                let username = localStorage.getItem(cfg.lsKey.login)
                 let uid = uuidv4()
                 let task = {
                     Author: username,
@@ -227,21 +212,18 @@
                     Title: this.newTaskTitle,
                     Uid: uid,
                 }
-                this.db.ref(this.listName + '/' + uid).set(task).then(() => {
-                    this.newTaskTitle = ''
-                    this.categoryForNewTask = 'Без категории'
-                    this.addTask(task)
-                })
+                this.db.ref(this.listName + '/' + uid).set(task)
+                this.addTask(task)
+                this.newTaskTitle = ''
             },
             deleteTask(task) {
-                this.db.ref(this.listName + '/' + task.Uid).set(null).then(() => {
-                    this.removeTask(task)
-                })
+                this.removeTask(task)
+                this.db.ref(this.listName + '/' + task.Uid).set(null)
             },
             setCategoryForNewTask(category) {
                 this.categoryForNewTask = category
             },
-            refresh() {
+            setTasks() {
                 this.db.ref(this.listName).once('value', (snapshot) => {
                     this.clear()
                     let tasks = []
@@ -250,6 +232,7 @@
                             tasks.push(childSnapshot.val())
                         }
                     })
+                    this.setCategories(tasks)
                     this.loadTasks(tasks)
                 })
             }
@@ -258,6 +241,9 @@
 </script>
 
 <style scoped>
+    .row a {
+        color: #000000;
+    }
     #spacer {
         padding-top: 20px;
     }
@@ -272,6 +258,7 @@
     .task-container {
         padding-left: 10px;
         background-color: #fff;
+        /*margin-top: 60px;*/
     }
     .task-title {
         border: 1px solid #bbc;

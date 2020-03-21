@@ -1,3 +1,5 @@
+import cfg from  '../../config'
+
 export default {
     namespaced: true,
     state: {
@@ -17,18 +19,18 @@ export default {
 
             if (existList.length === 0) {
                 state.lastLists.push(item)
-                localStorage.setItem('lastLists', JSON.stringify(state.lastLists))
+                localStorage.setItem(cfg.lsKey.lastLists, JSON.stringify(state.lastLists))
             }
         },
         removeList(state, item) {
             let lists = state.lastLists.filter((list) => list.hash !== item.hash)
             state.lastLists = lists
-            localStorage.setItem('lastLists', JSON.stringify(lists))
+            localStorage.setItem(cfg.lsKey.lastLists, JSON.stringify(lists))
         }
     },
     actions: {
         loadLastLists(store) {
-            let lists = JSON.parse(localStorage.getItem('lastLists'))
+            let lists = JSON.parse(localStorage.getItem(cfg.lsKey.lastLists))
 
             if (lists === null || lists === undefined) {
                 lists = []
