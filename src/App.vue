@@ -26,6 +26,20 @@ export default {
       firebase.initializeApp(firebaseConfig)
     },
     mounted() {
+        let v = localStorage.getItem('version')
+
+        if (v === '') {
+            v = 0
+        } else {
+            v = Number(v)
+        }
+        if (cfg.version > v) {
+            localStorage.setItem('version', cfg.version.toString())
+            window.location.reload()
+            return
+        }
+
+
         this.$router.push({ path: 'login' })
     },
     components: {

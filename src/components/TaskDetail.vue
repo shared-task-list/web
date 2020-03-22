@@ -4,6 +4,9 @@
             <nav>
                 <div class="nav-wrapper">
                     <a href="" class="brand-logo">{{ this.currentListName }}</a>
+                    <ul class="left">
+                        <li><a @click="back"><i class="material-icons">arrow_back</i></a></li>
+                    </ul>
                 </div>
             </nav>
         </div>
@@ -95,7 +98,10 @@
                 this.db.ref(this.listName + '/' + this.task.Uid).set(this.task).then(() => {
                     this.$router.go(-1)
                 })
-            }
+            },
+            back() {
+                this.$router.go(-1)
+            },
         }
     }
 </script>
