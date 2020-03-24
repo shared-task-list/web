@@ -40,7 +40,10 @@
             </a>
             <ul>
                 <li><a class="btn-floating red modal-trigger" href="#new-cat-modal"><i class="material-icons">add_circle_outline</i></a></li>
-                <li><a class="btn-floating green darken-1 modal-trigger" href="#new-task-modal"><i class="material-icons">add</i></a></li>
+                <router-link :to="{ name: 'create' }">
+                    <li><a class="btn-floating green darken-1 modal-trigger" href="#new-task-modal"><i class="material-icons">add</i></a></li>
+                </router-link>
+
 <!--                <li><a class="btn-floating green"><i class="material-icons">settings</i></a></li>-->
                 <li><a class="btn-floating blue" @click="exit"><i class="material-icons">exit_to_app</i></a></li>
             </ul>

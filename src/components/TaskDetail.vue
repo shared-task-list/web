@@ -45,9 +45,9 @@
         <div id="button-container">
             <button type="submit"
                     class="btn btn-outline-primary"
-                    @click="update($event)"
+                    @click="update()"
                     :disabled="isButtonDisabled">
-                Update
+                {{ buttonTitle }}
             </button>
         </div>
     </div>
@@ -57,6 +57,7 @@
     import {mapGetters} from "vuex";
     import cfg from "../config";
     import firebase from "firebase";
+    import {v4 as uuidv4} from "uuid";
 
     export default {
         name: "TaskDetail",
@@ -66,11 +67,23 @@
                 task: {},
                 currentListName: '',
                 db: null,
+                isUpdate: false,
+                buttonTitle: '',
             }
         },
         created() {
             this.db = firebase.database();
-            this.task = this.tasks.find(item => item.Uid === this.$route.params.id)
+
+            if (!this.$route.params.id) {
+                this.task.Uid  = ''
+                this.task.Title  = ''
+                this.task.Comment  = ''
+                this.task.Category = cfg.noCategory
+                this.buttonTitle = 'Create'
+            } else {
+                this.buttonTitle = 'Update'
+                this.task = this.tasks.find(item => item.Uid === this.$route.params.id)
+            }
 
             // list name for nav
             let taskList = localStorage.getItem(cfg.lsKey.taskList)
@@ -85,7 +98,7 @@
 
             }),
             ...mapGetters("common", {
-                listName: "listName",
+                listFullName: "listName",
                 categories: "categories",
             }),
             isButtonDisabled: () => {
@@ -94,10 +107,27 @@
             }
         },
         methods: {
-            update(event) {
-                this.db.ref(this.listName + '/' + this.task.Uid).set(this.task).then(() => {
-                    this.$router.go(-1)
-                })
+            update() {
+                if (this.task.Uid !== '') {
+                    this.db.ref(this.listFullName + '/' + this.task.Uid).set(this.task).then(() => {
+                        this.$router.go(-1)
+                    })
+                } else {
+                    let username = localStorage.getItem(cfg.lsKey.login)
+                    let uid = uuidv4()
+                    let task = {
+                        Author: username,
+                        Comment: this.task.Comment,
+                        Timestamp: new Date().toISOString(),
+                        AuthorUid: '',
+                        Category: this.task.Category,
+                        Title: this.task.Title,
+                        Uid: uid,
+                    }
+                    this.db.ref(this.listFullName + '/' + uid).set(task).then(() => {
+                        this.$router.go(-1)
+                    })
+                }
             },
             back() {
                 this.$router.go(-1)

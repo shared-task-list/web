@@ -20,6 +20,11 @@ const routes = [
         component: TaskDetail
     },
     {
+        name: 'create',
+        path: '/tasks/create',
+        component: TaskDetail
+    },
+    {
         path: '/login',
         component: Login
     },
