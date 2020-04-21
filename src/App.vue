@@ -1,59 +1,42 @@
 <template>
-  <div id="app">
-    <main>
-        <router-view></router-view>
-    </main>
+  <div id="q-app">
+    <router-view />
   </div>
 </template>
 
 <script>
-import firebase from 'firebase/app';
-import 'firebase/database';
-import Login from './components/Login'
-import cfg from './config'
-
+  import 'firebase/database';
+  import firebase from 'firebase/app';
+  import cfg from 'src/config'
+  import {mapActions} from "vuex";
 
 export default {
-    name: 'app',
+    name: 'App',
     beforeCreate() {
-      const firebaseConfig = {
-          apiKey: cfg.firebase.apiKey,
-          authDomain: cfg.firebase.authDomain,
-          databaseURL: cfg.firebase.databaseURL,
-          storageBucket: cfg.firebase.storageBucket,
-      }
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig)
+        const firebaseConfig = {
+            apiKey: cfg.firebase.apiKey,
+            authDomain: cfg.firebase.authDomain,
+            databaseURL: cfg.firebase.databaseURL,
+            storageBucket: cfg.firebase.storageBucket,
+        }
+        firebase.initializeApp(firebaseConfig)
     },
     mounted() {
-        let v = localStorage.getItem('version')
+        let lastList = localStorage.getItem(cfg.lsKey.lastList)
+        this.loadLastLists()
 
-        if (v === '') {
-            v = 0
-        } else {
-            v = Number(v)
-        }
-        if (cfg.version > v) {
-            localStorage.setItem('version', cfg.version.toString())
-            window.location.reload()
+        if (lastList !== 'null' && lastList !== '' && lastList !== null) {
+            this.setListName(lastList)
+            this.$router.replace({ path: 'tasks', replace: true })
             return
         }
 
-
-        this.$router.push({ path: 'login' })
+        this.$router.replace({path: 'login', replace: true})
     },
-    components: {
-        Login
+    methods: {
+        ...mapActions("login", {
+            loadLastLists: "loadLastLists",
+        }),
     }
 }
 </script>
-
-<style>
-    body {
-        background-color: #ee6e73;
-    }
-    #app {
-        background-color: #fff;
-        height: 100vh;
-    }
-</style>

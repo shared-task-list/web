@@ -1,11 +1,11 @@
-import cfg from  '../../config'
+import cfg from  'src/config'
 const _ = require('lodash');
 
 export default {
     namespaced: true,
     state: {
         tasks: [],
-        taskMap: new Map()
+        taskMap: new Map(),
     },
     getters: {
         tasks(state) {
