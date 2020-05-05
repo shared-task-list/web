@@ -1,11 +1,12 @@
 <template>
     <q-page>
         <q-pull-to-refresh @refresh="setTasks">
+<!--            <div class="task-container" :style="{ backgroundColor: bgColor }">-->
             <div class="task-container">
-                <div :key="cat" v-for="cat in categories">
+                <div :key="cat" v-for="cat in categories" class="task-list">
                     <q-expansion-item
                         default-opened
-                        :header-style="{ fontSize: '25px', marginTop: '25px' }"
+                        :header-style="{ fontSize: '24px', marginTop: '25px' }"
                     >
                         <template v-slot:header>
                             <q-item-section avatar>
@@ -21,6 +22,16 @@
                                 {{ cat }}
                             </q-item-section>
                         </template>
+
+                        <div class="full-width btn-add-container">
+                            <q-btn
+                                flat
+                                label="Add New"
+                                color="primary"
+                                @click="addInCategory(cat)"
+                                class="content-center"
+                            />
+                        </div>
 
                         <div :key="task.Uid" v-for="task in taskMap.get(cat)">
                             <div class="row task-row-container">
@@ -42,9 +53,10 @@
                         </div>
                     </q-expansion-item>
                 </div>
-                <div id="bottom-spacer"></div>
+
             </div>
         </q-pull-to-refresh>
+        <div id="bottom-spacer"></div>
 
         <!-- menu button -->
         <q-page-sticky position="bottom-right" :offset="[18, 18]">
@@ -204,6 +216,7 @@
                 listName: "listName",
                 categories: "categories",
                 categoryColors: "categoryColors",
+                bgColor: "bgColor",
             }),
         },
         methods: {
@@ -229,6 +242,10 @@
                 }
 
                 this.isShowAddTask = true
+            },
+            addInCategory(category) {
+                this.categoryForNewTask = category
+                this.showQuickAdd()
             },
             showColorPicker(category) {
                 this.colorCategory = category
@@ -315,6 +332,11 @@
     #bottom-spacer {
         padding-bottom: 90px;
     }
+    @media (min-width: 992px) {
+        #bottom-spacer {
+            padding-bottom: 300px;
+        }
+    }
     .row a {
         color: #000000;
         text-decoration: none;
@@ -322,6 +344,28 @@
     .task-container {
         padding-left: 10px;
         background-color: #fff;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        align-items: flex-start;
+        align-content: stretch;
+    }
+    @media (min-width: 992px) {
+        .task-container {
+            padding-left: 10px;
+            background-color: #fff;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: flex-start;
+            align-content: stretch;
+        }
+    }
+    .task-list {
+        flex: 0 1 auto;
+        align-self: stretch;
     }
     .task-title {
         border: 1px solid #bbc;
@@ -345,5 +389,8 @@
         flex: 0 1 auto;
         align-self: center;
         margin: 0 10px;
+    }
+    .btn-add-container {
+        text-align: center;
     }
 </style>

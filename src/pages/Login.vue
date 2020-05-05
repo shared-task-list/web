@@ -1,8 +1,8 @@
 <template>
     <div>
-        <p></p>
+        <div id="top-spacer"></div>
         <div id="form-container" class="row">
-            <form action="" class="col s12 m3 offset-m4">
+            <form action="" class="col col-sm-4 offset-sm-4">
                 <div>
                   <q-input outlined bottom-slots v-model="login" label="Login" :rules="[val => !!val || 'Field is required']">
                     <template v-slot:prepend>
@@ -152,6 +152,7 @@
                         this.$router.replace({ path: 'tasks', replace: true })
                     })
                 })
+               
             },
             openList(event) {
                 event.preventDefault()
@@ -187,6 +188,14 @@
 </script>
 
 <style scoped>
+    #top-spacer {
+        margin-top: 20px;
+    }
+    @media (min-width: 992px) {
+        #top-spacer {
+            margin-top: 15%;
+        }
+    }
     #form-container {
         margin: 0 40px;
     }

@@ -1,5 +1,5 @@
 <template>
-    <q-layout view="lHh Lpr lFf">
+    <q-layout id="main-layout" view="hHh Lpr lff" class="shadow-2 rounded-borders">
         <q-header elevated>
             <q-toolbar>
                 <q-btn
@@ -15,8 +15,6 @@
                 <q-toolbar-title>
                     Shared Task List
                 </q-toolbar-title>
-
-                <!--        <div>Quasar v{{ $q.version }}</div>-->
             </q-toolbar>
         </q-header>
 
@@ -40,11 +38,26 @@
         <q-page-container>
             <router-view/>
         </q-page-container>
+
+        <!-- back button -->
+        <span v-if="this.showBackButton = $q.platform.is.ios || $q.platform.is.electron">
+            <q-page-sticky
+                v-show="$router.currentRoute.fullPath !== '/tasks' && $router.currentRoute.fullPath !== '/login'"
+                position="bottom-left"
+                :offset="[18, 18]">
+                <q-btn
+                    fab
+                    @click="back"
+                    external-label
+                    color="primary"
+                    icon="arrow_back"
+                />
+            </q-page-sticky>
+        </span>
     </q-layout>
 </template>
 
 <script>
-import EssentialLink from 'components/EssentialLink'
 import {mapActions, mapGetters} from "vuex";
 import cfg from "src/config";
 import firebase from "firebase";
@@ -52,20 +65,27 @@ import firebase from "firebase";
 export default {
     name: 'MainLayout',
 
-    components: {
-        EssentialLink
-    },
-
     data() {
         return {
             leftDrawerOpen: false,
+            showBackButton: true,
         }
+    },
+    mounted() {
     },
     computed: {
         ...mapGetters("login", {
             lastLists: "lastLists",
         }),
     },
+    /*watch: {
+        canWatch: () => {
+            let path = this.$router.currentRoute.fullPath
+            this.showBackButton = (this.$q.platform.is.ios || this.$q.platform.is.electron)
+                && path !== '/tasks'
+                && path !== '/login'
+        },
+    },*/
     methods: {
         ...mapActions("common", {
             setListName: "setListName",
@@ -77,10 +97,17 @@ export default {
         }),
         openLastList(list) {
             let db = firebase.database();
-            this.leftDrawerOpen = false
+
+            if (window.innerWidth < 992) {
+                this.leftDrawerOpen = false
+            }
+
             localStorage.setItem(cfg.lsKey.lastList, list.hash)
             localStorage.setItem(cfg.lsKey.taskList,  list.name)
             this.setListName(list.hash)
+
+            let route = this.$router.currentRoute
+
             db.ref(list.hash).once('value', (snapshot) => {
                 this.clear()
                 let tasks = []
@@ -91,7 +118,14 @@ export default {
                 })
                 this.setCategories(tasks)
                 this.loadTasks(tasks)
+
+                if (route.path !== '/tasks') {
+                    this.$router.replace({ path: 'tasks', replace: true })
+                }
             })
+        },
+        back() {
+            this.$router.go(-1)
         }
 
     }

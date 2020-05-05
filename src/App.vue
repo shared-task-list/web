@@ -34,6 +34,9 @@ export default {
         this.$router.replace({path: 'login', replace: true})
     },
     methods: {
+        ...mapActions("common", {
+            setListName: "setListName",
+        }),
         ...mapActions("login", {
             loadLastLists: "loadLastLists",
         }),

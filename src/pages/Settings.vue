@@ -14,7 +14,7 @@
                     <q-item-label caption>{{ name }}</q-item-label>
                 </q-item-section>
             </q-item>
-            <q-item clickable v-ripple>
+            <q-item clickable v-ripple @click="isShowColorPicker = true">
                 <q-item-section>Background</q-item-section>
             </q-item>
         </q-list>
@@ -57,7 +57,7 @@
         <q-dialog v-model="isShowName">
             <q-card style="min-width: 350px">
                 <q-card-section>
-                    <div class="text-h6">ame</div>
+                    <div class="text-h6">Name</div>
                 </q-card-section>
 
                 <q-card-section class="q-pt-none">

@@ -5,7 +5,8 @@ export default {
     state: {
         listFullName: '',
         categories: [],
-        categoryColors: new Map()
+        categoryColors: new Map(),
+        bgColor: '',
     },
     getters: {
         listName(state) {
@@ -28,6 +29,9 @@ export default {
             }
 
             return state.categoryColors
+        },
+        bgColor(state) {
+            return localStorage.getItem(cfg.lsKey.bgColor)
         }
     },
     mutations: {
@@ -63,7 +67,7 @@ export default {
 
             let savedCats = localStorage.getItem(cfg.lsKey.categoriesColors) ??  '[]'
 
-            setColors(savedCats,  cats)
+            setColors(savedCats, cats)
             store.commit('setCategories', Array.from(cats))
         },
         addCategoryColor(store, item) {
@@ -85,4 +89,26 @@ function setColors(savedCats, taskCats) {
     }
 
     localStorage.setItem(cfg.lsKey.categoriesColors, JSON.stringify(forSave))
+}
+
+function saveCategories(cats) {
+    let savedCats = JSON.parse(localStorage.getItem(cfg.lsKey.categories) ??  '[]')
+    let forSave = []
+
+    for (let cat of cats) {
+        let item = savedCats.find((i) => i.name === cat)
+
+        if (item !== undefined) {
+            forSave.push(item)
+        } else {
+            forSave.push({
+                name: cat,
+                date: new Date().getTime(),
+                isExpanded: true,
+            })
+        }
+    }
+
+    localStorage.setItem(cfg.lsKey.categories, JSON.stringify(forSave))
+    return forSave
 }

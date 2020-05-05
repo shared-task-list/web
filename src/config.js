@@ -12,6 +12,7 @@ export default {
         taskList: 'taskList',
         login: 'login',
         categoriesColors: 'categories_colors',
+        categories: 'categories',
         bgColor: 'bg_color'
     },
     noCategory: 'Без категории',

@@ -12,7 +12,9 @@
     "web": "npx quasar dev",
     "pwa": "npx quasar dev -m pwa",
     "pwa build": "npx quasar build -m pwa",
-    "pwa deploy": "npx firebase deploy"
+    "pwa deploy": "npx firebase deploy",
+    "electron": "quasar dev -m electron -- --no-sandbox --disable-setuid-sandbox",
+    "electron build": "quasar build --mode electron"
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
@@ -26,6 +28,11 @@
   },
   "devDependencies": {
     "@quasar/app": "^1.0.0",
+    "devtron": "^1.4.0",
+    "electron": "^8.2.3",
+    "electron-debug": "^3.0.1",
+    "electron-devtools-installer": "^2.2.4",
+    "electron-packager": "^14.2.1",
     "firebase-tools": "^8.0.2"
   },
   "engines": {
