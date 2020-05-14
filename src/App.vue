@@ -1,5 +1,5 @@
 <template>
-  <div id="q-app">
+  <div id="q-app" :style="{ backgroundColor: bgColor }">
     <router-view />
   </div>
 </template>
@@ -8,7 +8,7 @@
   import 'firebase/database';
   import firebase from 'firebase/app';
   import cfg from 'src/config'
-  import {mapActions} from "vuex";
+  import {mapActions, mapGetters} from "vuex";
 
 export default {
     name: 'App',
@@ -32,6 +32,11 @@ export default {
         }
 
         this.$router.replace({path: 'login', replace: true})
+    },
+    computed: {
+        ...mapGetters("common", {
+            bgColor: "bgColor",
+        }),
     },
     methods: {
         ...mapActions("common", {

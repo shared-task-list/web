@@ -40,7 +40,7 @@
         </q-page-container>
 
         <!-- back button -->
-        <span v-if="this.showBackButton = $q.platform.is.ios || $q.platform.is.electron">
+<!--        <span v-if="this.showBackButton = $q.platform.is.ios || $q.platform.is.electron">-->
             <q-page-sticky
                 v-show="$router.currentRoute.fullPath !== '/tasks' && $router.currentRoute.fullPath !== '/login'"
                 position="bottom-left"
@@ -53,7 +53,7 @@
                     icon="arrow_back"
                 />
             </q-page-sticky>
-        </span>
+<!--        </span>-->
     </q-layout>
 </template>
 

@@ -1,32 +1,35 @@
 <template>
-    <q-page>
+    <q-page :style="{ backgroundColor: bgColor }">
         <p></p>
         <q-list>
             <q-item clickable v-ripple>
                 <q-item-section @click="showDefaultCategory">
-                    <q-item-label>Default Category</q-item-label>
+                    <q-item-label :style="{ color: getTextColor(bgColor) }">Default Category</q-item-label>
                     <q-item-label caption>{{ defaultCategory }}</q-item-label>
                 </q-item-section>
             </q-item>
             <q-item clickable v-ripple>
                 <q-item-section @click="isShowName = true">
-                    <q-item-label>Name</q-item-label>
+                    <q-item-label :style="{ color: getTextColor(bgColor) }">Name</q-item-label>
                     <q-item-label caption>{{ name }}</q-item-label>
                 </q-item-section>
             </q-item>
             <q-item clickable v-ripple @click="isShowColorPicker = true">
-                <q-item-section>Background</q-item-section>
+                <q-item-section :style="{ color: getTextColor(bgColor) }">Background</q-item-section>
             </q-item>
         </q-list>
 
         <!-- color dialog-->
         <q-dialog v-model="isShowColorPicker">
             <q-card style="min-width: 350px">
+                <q-badge color="grey-3" text-color="black" class="q-mb-sm">
+                    {{ newColor }}
+                </q-badge>
                 <q-color v-model="newColor" no-header class="my-picker" default-view="palette" />
 
                 <q-card-actions align="right" class="text-primary">
                     <q-btn flat label="Cancel" v-close-popup />
-                    <q-btn flat label="Set for background" v-close-popup @click="setBgColor" />
+                    <q-btn flat label="Set for background" v-close-popup @click="setNewBgColor" />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -71,20 +74,19 @@
             </q-card>
         </q-dialog>
 
-
     </q-page>
 </template>
 
 <script>
     import cfg from "src/config";
-    import {mapGetters} from "vuex";
+    import {mapActions, mapGetters} from "vuex";
+    import {hexToRgb} from "quasar/src/utils/colors";
 
     export default {
         name: "Settings",
         data() {
             return {
                 name: '',
-                bgColor: '',
                 defaultCategory: '',
                 isShowColorPicker: false,
                 isShowDefaultCategory: false,
@@ -96,21 +98,24 @@
         },
         mounted() {
             this.name = localStorage.getItem(cfg.lsKey.login)
-            this.bgColor = localStorage.getItem(cfg.lsKey.bgColor) ?? 'No color'
             this.defaultCategory = cfg.noCategory
         },
         computed: {
-            ...mapGetters("common", {
-                categories: "categories",
+            ...mapGetters('common', {
+                categories: 'categories',
+                bgColor: 'bgColor',
             }),
         },
         methods: {
-            setBgColor() {
+            ...mapActions('common', {
+                setBgColor: 'setBgColor',
+            }),
+            setNewBgColor() {
                 if (this.newColor === '') {
                     return
                 }
 
-                localStorage.setItem(cfg.lsKey.bgColor, this.newColor)
+                this.setBgColor(this.newColor)
             },
             showDefaultCategory() {
                 this.groupOptions = []
@@ -129,7 +134,19 @@
             },
             setDefaultCategory() {
 
-            }
+            },
+            getTextColor(color) {
+                if (color === undefined) {
+                    return 'black'
+                }
+
+                const rgb = hexToRgb(color)
+                const brightness = Math.round(((parseInt(rgb.r) * 299) +
+                    (parseInt(rgb.g) * 587) +
+                    (parseInt(rgb.b) * 114)) / 1000);
+
+                return (brightness > 125) ? 'black' : 'white';
+            },
         }
     }
 </script>

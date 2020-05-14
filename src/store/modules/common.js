@@ -31,7 +31,10 @@ export default {
             return state.categoryColors
         },
         bgColor(state) {
-            return localStorage.getItem(cfg.lsKey.bgColor)
+            if (state.bgColor === '') {
+                return localStorage.getItem(cfg.lsKey.bgColor)
+            }
+            return state.bgColor
         }
     },
     mutations: {
@@ -46,6 +49,10 @@ export default {
         },
         addCategoryColor(state, item) {
             state.categoryColors.set(item.name, item.color)
+        },
+        setBgColor(state, color) {
+            localStorage.setItem(cfg.lsKey.bgColor, color)
+            state.bgColor = color
         },
     },
     actions: {
@@ -72,6 +79,9 @@ export default {
         },
         addCategoryColor(store, item) {
             store.commit('addCategoryColor', item)
+        },
+        setBgColor(store, color) {
+            store.commit('setBgColor', color)
         },
     }
 };

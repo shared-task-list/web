@@ -1,7 +1,6 @@
 <template>
-    <q-page>
+    <q-page :style="{ backgroundColor: bgColor }">
         <q-pull-to-refresh @refresh="setTasks">
-<!--            <div class="task-container" :style="{ backgroundColor: bgColor }">-->
             <div class="task-container">
                 <div :key="cat" v-for="cat in categories" class="task-list">
                     <q-expansion-item
@@ -18,7 +17,7 @@
                                     color="secondary"
                                     icon="palette"/>
                             </q-item-section>
-                            <q-item-section>
+                            <q-item-section :style="{ color: getTextColor(bgColor) }">
                                 {{ cat }}
                             </q-item-section>
                         </template>
@@ -35,9 +34,9 @@
 
                         <div :key="task.Uid" v-for="task in taskMap.get(cat)">
                             <div class="row task-row-container">
-                                <div class="task-title" :style="{ backgroundColor: categoryColors.get(cat) }">
+                                <div class="task-title" :style="{ backgroundColor: getBackgroundColor(cat) }">
                                     <router-link :to="{ name: 'taskDetail', params: { id: task.Uid }}">
-                                        <div>
+                                        <div :style="{ color: getTextColor(categoryColors.get(cat)) }">
                                             {{ task.Title }}
                                         </div>
                                     </router-link>
@@ -144,6 +143,9 @@
         <!-- color dialog-->
         <q-dialog v-model="isShowColorPicker">
             <q-card style="min-width: 350px">
+                <q-badge color="grey-3" text-color="black" class="q-mb-sm">
+                    {{ newColor }}
+                </q-badge>
                 <q-color v-model="newColor" no-header class="my-picker" default-view="palette" />
 
                 <q-card-actions align="right" class="text-primary">
@@ -161,6 +163,7 @@
     import 'firebase/database'
     import { v4 as uuidv4 } from 'uuid'
     import cfg from 'src/config'
+    import {hexToRgb} from "quasar/src/utils/colors";
 
 
     export default {
@@ -210,7 +213,6 @@
             ...mapGetters("task_list", {
                 tasks: "tasks",
                 taskMap: "taskMap",
-
             }),
             ...mapGetters("common", {
                 listName: "listName",
@@ -324,7 +326,29 @@
                 this.newColor = ''
                 this.addCategoryColor(item)
             },
+            getTextColor(color) {
+                if (color === undefined) {
+                    return 'black'
+                }
+
+                const rgb = hexToRgb(color)
+                const brightness = Math.round(((parseInt(rgb.r) * 299) +
+                    (parseInt(rgb.g) * 587) +
+                    (parseInt(rgb.b) * 114)) / 1000);
+
+                return (brightness > 125) ? 'black' : 'white';
+            },
+            getBackgroundColor(cat) {
+                const color = this.categoryColors.get(cat)
+
+                if (color === undefined) {
+                    return '#fff'
+                }
+
+                return color
+            }
         },
+
     }
 </script>
 
@@ -338,12 +362,10 @@
         }
     }
     .row a {
-        color: #000000;
         text-decoration: none;
     }
     .task-container {
         padding-left: 10px;
-        background-color: #fff;
         display: flex;
         flex-direction: column;
         flex-wrap: nowrap;
