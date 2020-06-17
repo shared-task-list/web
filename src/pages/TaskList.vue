@@ -1,8 +1,8 @@
 <template>
-    <q-page :style="{ backgroundColor: bgColor }">
+    <q-page>
         <q-pull-to-refresh @refresh="setTasks">
-            <div class="task-container">
-                <div :key="cat" v-for="cat in categories" class="task-list">
+            <div class="task-container" :style="{ backgroundColor: bgColor }">
+                <div :key="cat.name" v-for="cat in categories" class="task-list">
                     <q-expansion-item
                         default-opened
                         :header-style="{ fontSize: '24px', marginTop: '25px' }"
@@ -10,16 +10,15 @@
                         <template v-slot:header>
                             <q-item-section avatar>
                                 <q-btn
-                                    @click.stop="showColorPicker(cat)"
+                                    @click.stop="showColorPicker(cat.name)"
                                     size="md"
                                     flat
                                     round
                                     color="secondary"
-                                    icon="palette"/>
+                                    icon="palette"
+                                />
                             </q-item-section>
-                            <q-item-section :style="{ color: getTextColor(bgColor) }">
-                                {{ cat }}
-                            </q-item-section>
+                            <q-item-section :style="{ color: getTextColor(bgColor) }">{{ cat.name }}</q-item-section>
                         </template>
 
                         <div class="full-width btn-add-container">
@@ -27,16 +26,18 @@
                                 flat
                                 label="Add New"
                                 color="primary"
-                                @click="addInCategory(cat)"
+                                @click="addInCategory(cat.name)"
                                 class="content-center"
                             />
                         </div>
-
-                        <div :key="task.Uid" v-for="task in taskMap.get(cat)">
+                        <div :key="task.Uid" v-for="task in taskMap.get(cat.name)">
                             <div class="row task-row-container">
-                                <div class="task-title" :style="{ backgroundColor: getBackgroundColor(cat) }">
+                                <div
+                                    class="task-title"
+                                    :style="{ backgroundColor: cat.color }"
+                                >
                                     <router-link :to="{ name: 'taskDetail', params: { id: task.Uid }}">
-                                        <div :style="{ color: getTextColor(categoryColors.get(cat)) }">
+                                        <div :style="{ color: getTextColor(cat.color) }">
                                             {{ task.Title }}
                                         </div>
                                     </router-link>
@@ -47,18 +48,18 @@
                                     color="secondary"
                                     icon="done"
                                     class="btn-done"
-                                    @click="deleteTask(task)" />
+                                    @click="deleteTask(task)"
+                                />
                             </div>
                         </div>
                     </q-expansion-item>
                 </div>
-
             </div>
         </q-pull-to-refresh>
         <div id="bottom-spacer"></div>
 
         <!-- menu button -->
-        <q-page-sticky position="bottom-right" :offset="[18, 18]">
+        <q-page-sticky position="bottom-right" :offset="[18, 18*3]">
             <div class="q-mt-md">
                 <q-fab
                     external-label
@@ -68,31 +69,50 @@
                     icon="menu"
                     direction="up"
                 >
-                    <q-fab-action v-go-back=" '/login' " @click="exit" label-position="left" external-label color="accent"  icon="exit_to_app" label="Exit" />
+                    <q-fab-action
+                        v-go-back=" '/login' "
+                        @click="exit"
+                        label-position="left"
+                        external-label
+                        color="accent"
+                        icon="exit_to_app"
+                        label="Exit"
+                    />
 
-                    <router-link :to="{ name: 'settings' }">
-                        <q-fab-action label-position="left" external-label color="orange"  icon="settings" label="Settings" />
-                    </router-link>
                     <router-link :to="{ name: 'create' }">
-                        <q-fab-action label-position="left" external-label color="secondary"  icon="add" label="Add Task" />
+                        <q-fab-action
+                            label-position="left"
+                            external-label
+                            color="secondary"
+                            icon="add"
+                            label="Add Task"
+                        />
                     </router-link>
 
-                    <q-fab-action @click="isShowAddCategory = true" label-position="left" external-label color="primary"  icon="add_circle_outline" label="Add Category" />
+                    <q-fab-action
+                        @click="isShowAddCategory = true"
+                        label-position="left"
+                        external-label
+                        color="primary"
+                        icon="add_circle_outline"
+                        label="Add Category"
+                    />
                 </q-fab>
             </div>
         </q-page-sticky>
 
         <!-- add button -->
-        <q-page-sticky position="bottom-right" :offset="[18*5, 18]">
+        <q-page-sticky position="bottom-right" :offset="[18*5, 18*3]">
             <div class="q-mt-md">
-                <q-fab
+                <q-btn
                     vertical-actions-align="left"
                     label-position="left"
                     color="primary"
                     icon="add"
-                    @click="showQuickAdd"
-                >
-                </q-fab>
+                    round
+                    size="18px"
+                    @click="showQuickAddDialog"
+                ></q-btn>
             </div>
         </q-page-sticky>
 
@@ -104,12 +124,18 @@
                 </q-card-section>
 
                 <q-card-section class="q-pt-none">
-                    <q-input dense v-model="newCategory" autofocus @keyup.enter="prompt = false" />
+                    <q-input dense v-model="newCategory" autofocus />
                 </q-card-section>
 
                 <q-card-actions align="right" class="text-primary">
                     <q-btn flat label="Cancel" v-close-popup />
-                    <q-btn flat label="Add category" v-close-popup @click="addNewCategory" :disabled="newCategory.length === 0" />
+                    <q-btn
+                        flat
+                        label="Add category"
+                        v-close-popup
+                        @click="addNewCategory"
+                        :disabled="newCategory.length === 0"
+                    />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -122,7 +148,7 @@
                 </q-card-section>
 
                 <q-card-section class="q-pt-none">
-                    <q-input dense v-model="newTaskTitle" autofocus @keyup.enter="prompt = false" />
+                    <q-input dense v-model="newTaskTitle" autofocus />
                 </q-card-section>
 
                 <div class="q-pa-lg">
@@ -135,7 +161,13 @@
 
                 <q-card-actions align="right" class="text-primary">
                     <q-btn flat label="Cancel" v-close-popup />
-                    <q-btn flat label="Add task" v-close-popup @click="createTask" :disabled="newTaskTitle.length === 0" />
+                    <q-btn
+                        flat
+                        label="Add task"
+                        v-close-popup
+                        @click="createTask"
+                        :disabled="newTaskTitle.length === 0"
+                    />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -143,14 +175,17 @@
         <!-- color dialog-->
         <q-dialog v-model="isShowColorPicker">
             <q-card style="min-width: 350px">
-                <q-badge color="grey-3" text-color="black" class="q-mb-sm">
-                    {{ newColor }}
-                </q-badge>
+                <q-badge color="grey-3" text-color="black" class="q-mb-sm">{{ newColor }}</q-badge>
                 <q-color v-model="newColor" no-header class="my-picker" default-view="palette" />
 
                 <q-card-actions align="right" class="text-primary">
                     <q-btn flat label="Cancel" v-close-popup />
-                    <q-btn flat label="Set for category" v-close-popup @click="setColorForCategory" />
+                    <q-btn
+                        flat
+                        label="Set for category"
+                        v-close-popup
+                        @click="setColorForCategory"
+                    />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -158,261 +193,288 @@
 </template>
 
 <script>
-    import { mapActions, mapGetters } from "vuex"
-    import firebase from "firebase/app"
-    import 'firebase/database'
-    import { v4 as uuidv4 } from 'uuid'
-    import cfg from 'src/config'
-    import {hexToRgb} from "quasar/src/utils/colors";
+import Vue from "vue";
+import { mapActions, mapGetters } from "vuex";
+import firebase from "firebase/app";
+import "firebase/database";
+import { v4 as uuidv4 } from "uuid";
+import cfg from "src/config";
+import { hexToRgb } from "quasar/src/utils/colors";
 
+export default {
+    name: "TaskList",
+    data() {
+        return {
+            db: null,
+            newCategory: "",
+            newTaskTitle: "",
+            currentListName: "",
+            categoryForNewTask: cfg.noCategory,
+            isShowAddCategory: false,
+            isShowAddTask: false,
+            isShowColorPicker: false,
+            groupOptions: [],
+            newColor: "",
+            colorCategory: ""
+        };
+    },
+    mounted() {
+        // set cached tasks
+        let cachedTasks = JSON.parse(
+            localStorage.getItem(cfg.lsKey.cachedTasks)
+        );
 
-    export default {
-        name: "TaskList",
-        data() {
-            return {
-                db: null,
-                newCategory: '',
-                newTaskTitle: '',
-                currentListName: '',
-                categoryForNewTask: cfg.noCategory,
-                isShowAddCategory: false,
-                isShowAddTask: false,
-                isShowColorPicker: false,
-                groupOptions: [],
-                newColor: '',
-                colorCategory: '',
+        if (cachedTasks !== null && cachedTasks.length !== 0) {
+            this.setCategories(cachedTasks);
+            this.loadTasks(cachedTasks);
+        }
+
+        // init firebase database
+        this.db = firebase.database();
+        this.setTasks();
+        this.db.ref(this.listName).on("child_added", snapshot => {
+            this.addTask(snapshot.val());
+        });
+        this.db.ref(this.listName).on("child_removed", snapshot => {
+            this.removeTask(snapshot.val());
+        });
+
+        // list name for nav
+        let taskList = localStorage.getItem(cfg.lsKey.taskList);
+
+        if (taskList !== null && taskList !== undefined) {
+            this.currentListName = taskList;
+        }
+
+        // show quick add button
+        this.showQuickAdd = localStorage.getItem(cfg.lsKey.showQuickAdd) ?? true;
+    },
+    computed: {
+        ...mapGetters("task_list", {
+            tasks: "tasks",
+            taskMap: "taskMap"
+        }),
+        ...mapGetters("common", {
+            listName: "listName",
+            categories: "categories",
+            bgColor: "bgColor"
+            // showQuickAdd: 'showQuickAdd',
+        })
+    },
+    methods: {
+        ...mapActions("task_list", {
+            loadTasks: "loadTasks",
+            removeTask: "removeTask",
+            addTask: "addTask",
+            clear: "clear"
+        }),
+        ...mapActions("common", {
+            setCategories: "setCategories",
+            addCategory: "addCategory",
+            addCategoryColor: "addCategoryColor"
+        }),
+        showQuickAddDialog() {
+            this.groupOptions = [];
+
+            for (let cat of this.categories) {
+                this.groupOptions.push({
+                    label: cat.name,
+                    value: cat.name,
+                });
+            }
+
+            this.isShowAddTask = true;
+        },
+        addInCategory(category) {
+            this.categoryForNewTask = category;
+            this.showQuickAddDialog();
+        },
+        showColorPicker(category) {
+            this.colorCategory = category;
+            this.isShowColorPicker = true;
+        },
+        addNewCategory() {
+            this.addCategory(this.newCategory);
+
+            this.$q.notify({
+                message: `Category '${this.newCategory}' is added`,
+                color: "black"
+            });
+
+            this.newCategory = "";
+        },
+        exit() {
+            localStorage.setItem(cfg.lsKey.taskList, "");
+            localStorage.setItem(cfg.lsKey.lastList, "");
+            this.clear();
+        },
+        createTask() {
+            let username = localStorage.getItem(cfg.lsKey.login);
+            let uid = uuidv4();
+            let task = {
+                Author: username,
+                Comment: "",
+                Timestamp: new Date().toISOString(),
+                AuthorUid: "",
+                Category: this.categoryForNewTask,
+                Title: this.newTaskTitle,
+                Uid: uid
             };
+            this.db.ref(this.listName + "/" + uid).set(task);
+            this.addTask(task);
+            this.newTaskTitle = "";
+
+            this.$q.notify({
+                message: `Task '${task.Title}' is added`,
+                color: "black"
+            });
         },
-        mounted() {
-            // set cached tasks
-            let cachedTasks = JSON.parse(localStorage.getItem(cfg.lsKey.cachedTasks))
+        deleteTask(task) {
+            this.removeTask(task);
+            this.db.ref(this.listName + "/" + task.Uid).set(null);
 
-            if (cachedTasks !== null && cachedTasks.length !== 0) {
-                this.setCategories(cachedTasks)
-                this.loadTasks(cachedTasks)
-            }
-
-            // init firebase database
-            this.db = firebase.database();
-            this.setTasks()
-            this.db.ref(this.listName).on('child_added', (snapshot) => {
-                this.addTask(snapshot.val())
-            })
-            this.db.ref(this.listName).on('child_removed', (snapshot) => {
-                this.removeTask(snapshot.val())
-            })
-
-            // list name for nav
-            let taskList = localStorage.getItem(cfg.lsKey.taskList)
-
-            if (taskList !== null && taskList !== undefined) {
-                this.currentListName = taskList
-            }
+            this.$q.notify({
+                message: `Task '${task.Title}' is done`,
+                color: "black"
+            });
         },
-        computed: {
-            ...mapGetters("task_list", {
-                tasks: "tasks",
-                taskMap: "taskMap",
-            }),
-            ...mapGetters("common", {
-                listName: "listName",
-                categories: "categories",
-                categoryColors: "categoryColors",
-                bgColor: "bgColor",
-            }),
-        },
-        methods: {
-            ...mapActions("task_list", {
-                loadTasks: "loadTasks",
-                removeTask: "removeTask",
-                addTask: "addTask",
-                clear: "clear",
-            }),
-            ...mapActions("common", {
-                setCategories: "setCategories",
-                addCategory: "addCategory",
-                addCategoryColor: "addCategoryColor",
-            }),
-            showQuickAdd() {
-                this.groupOptions = []
-
-                for (let cat of this.categories)  {
-                    this.groupOptions.push({
-                        label: cat,
-                        value: cat,
-                    })
-                }
-
-                this.isShowAddTask = true
-            },
-            addInCategory(category) {
-                this.categoryForNewTask = category
-                this.showQuickAdd()
-            },
-            showColorPicker(category) {
-                this.colorCategory = category
-                this.isShowColorPicker = true
-            },
-            addNewCategory() {
-                this.addCategory(this.newCategory)
-                this.newCategory = ''
-            },
-            exit() {
-                localStorage.setItem(cfg.lsKey.taskList, '')
-                localStorage.setItem(cfg.lsKey.lastList, '')
-                this.clear()
-            },
-            createTask() {
-                let username = localStorage.getItem(cfg.lsKey.login)
-                let uid = uuidv4()
-                let task = {
-                    Author: username,
-                    Comment: '',
-                    Timestamp: new Date().toISOString(),
-                    AuthorUid: '',
-                    Category: this.categoryForNewTask,
-                    Title: this.newTaskTitle,
-                    Uid: uid,
-                }
-                this.db.ref(this.listName + '/' + uid).set(task)
-                this.addTask(task)
-                this.newTaskTitle = ''
-            },
-            deleteTask(task) {
-                this.removeTask(task)
-                this.db.ref(this.listName + '/' + task.Uid).set(null)
-            },
-            setTasks(done) {
-                this.db.ref(this.listName).once('value', (snapshot) => {
-                    this.clear()
-                    let tasks = []
-                    snapshot.forEach((childSnapshot) => {
-                        if (childSnapshot.val().Comment !== 'service task') {
-                            tasks.push(childSnapshot.val())
-                        }
-                    })
-                    this.setCategories(tasks)
-                    this.loadTasks(tasks)
-
-                    if (done) {
-                        done()
+        setTasks(done) {
+            this.db.ref(this.listName).once("value", snapshot => {
+                this.clear();
+                let tasks = [];
+                snapshot.forEach(childSnapshot => {
+                    if (childSnapshot.val().Comment !== "service task") {
+                        tasks.push(childSnapshot.val());
                     }
-                })
-            },
-            setColorForCategory() {
-                if (this.newColor === '') {
-                    return
-                }
+                });
+                this.setCategories(tasks);
+                this.loadTasks(tasks);
 
-                let savedCats = JSON.parse(localStorage.getItem(cfg.lsKey.categoriesColors) ?? '[]')
-                let existing = savedCats.find((i) => i.name === this.colorCategory)
-                let item = {
-                    name: this.colorCategory,
-                    color: this.newColor,
+                if (done) {
+                    done();
                 }
+            });
+        },
+        setColorForCategory() {
+            if (this.newColor === "") {
+                return;
+            }
 
-                if (existing === undefined) {
-                    savedCats.push(item)
-                } else {
-                    for (let i = 0; i < savedCats.length; ++i) {
-                        if (savedCats[i].name === this.colorCategory) {
-                            savedCats[i].color = this.newColor
-                            break
-                        }
+            let savedCats = JSON.parse(
+                localStorage.getItem(cfg.lsKey.categoriesColors) ?? "[]"
+            );
+            let existing = savedCats.find(i => i.name === this.colorCategory);
+            let item = {
+                name: this.colorCategory,
+                color: this.newColor
+            };
+
+            if (existing === undefined) {
+                savedCats.push(item);
+            } else {
+                for (let i = 0; i < savedCats.length; ++i) {
+                    if (savedCats[i].name === this.colorCategory) {
+                        savedCats[i].color = this.newColor;
+                        break;
                     }
                 }
-
-                localStorage.setItem(cfg.lsKey.categoriesColors, JSON.stringify(savedCats))
-                this.newColor = ''
-                this.addCategoryColor(item)
-            },
-            getTextColor(color) {
-                if (color === undefined) {
-                    return 'black'
-                }
-
-                const rgb = hexToRgb(color)
-                const brightness = Math.round(((parseInt(rgb.r) * 299) +
-                    (parseInt(rgb.g) * 587) +
-                    (parseInt(rgb.b) * 114)) / 1000);
-
-                return (brightness > 125) ? 'black' : 'white';
-            },
-            getBackgroundColor(cat) {
-                const color = this.categoryColors.get(cat)
-
-                if (color === undefined) {
-                    return '#fff'
-                }
-
-                return color
             }
-        },
 
+            localStorage.setItem(
+                cfg.lsKey.categoriesColors,
+                JSON.stringify(savedCats)
+            );
+            this.newColor = "";
+            this.addCategoryColor(item);
+
+            this.$q.notify({
+                message: `New color for Category ${this.colorCategory}`,
+                color: "black"
+            });
+        },
+        getTextColor(color) {
+            // TODO: to util
+            if (color === undefined || color === null) {
+                return "black";
+            }
+
+            const rgb = hexToRgb(color);
+            const brightness = Math.round(
+                (parseInt(rgb.r) * 299 +
+                    parseInt(rgb.g) * 587 +
+                    parseInt(rgb.b) * 114) /
+                    1000
+            );
+
+            return brightness > 125 ? "black" : "white";
+        },
     }
+};
 </script>
 
 <style scoped>
+#bottom-spacer {
+    padding-bottom: 90px;
+}
+@media (min-width: 992px) {
     #bottom-spacer {
-        padding-bottom: 90px;
+        padding-bottom: 300px;
     }
-    @media (min-width: 992px) {
-        #bottom-spacer {
-            padding-bottom: 300px;
-        }
-    }
-    .row a {
-        text-decoration: none;
-    }
+}
+.row a {
+    text-decoration: none;
+}
+.task-container {
+    padding-left: 10px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    align-content: stretch;
+}
+@media (min-width: 992px) {
     .task-container {
         padding-left: 10px;
         display: flex;
-        flex-direction: column;
-        flex-wrap: nowrap;
+        flex-direction: row;
+        flex-wrap: wrap;
         justify-content: flex-start;
         align-items: flex-start;
         align-content: stretch;
-    }
-    @media (min-width: 992px) {
-        .task-container {
-            padding-left: 10px;
-            background-color: #fff;
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-            align-items: flex-start;
-            align-content: stretch;
-        }
-    }
-    .task-list {
-        flex: 0 1 auto;
-        align-self: stretch;
-    }
-    .task-title {
-        border: 1px solid #bbc;
-        margin: 5px 0 0 0;
-        border-radius: 20px;
-        padding: 5px 10px;
-        font-size: 16px;
-        flex: 1 1 auto;
-        align-self: auto;
     }
     .task-row-container {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        justify-content: flex-start;
-        align-items: flex-start;
-        align-content: stretch;
-        margin-top: 15px;
+        margin-right: 20px;
     }
-    .btn-done {
-        flex: 0 1 auto;
-        align-self: center;
-        margin: 0 10px;
-    }
-    .btn-add-container {
-        text-align: center;
-    }
+}
+.task-list {
+    flex: 0 1 auto;
+    align-self: stretch;
+}
+.task-title {
+    border: 1px solid #bbc;
+    margin: 5px 0 0 0;
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-size: 16px;
+    flex: 1 1 auto;
+    align-self: auto;
+}
+.task-row-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    align-content: stretch;
+    margin-top: 15px;
+}
+.btn-done {
+    flex: 0 1 auto;
+    align-self: center;
+    margin: 0 10px;
+}
+.btn-add-container {
+    text-align: center;
+}
 </style>

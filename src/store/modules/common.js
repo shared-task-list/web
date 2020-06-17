@@ -5,61 +5,87 @@ export default {
     state: {
         listFullName: '',
         categories: [],
-        categoryColors: new Map(),
         bgColor: '',
+        showQuickAdd: '',
     },
     getters: {
         listName(state) {
             return state.listFullName
         },
         categories(state) {
-            /*if (state.categories && state.categories.length > 0) {
-                let arr = state.categories.filter((i) => i !== cfg.noCategory)
-                arr.unshift(cfg.noCategory)
-                return arr
-            }*/
-
-            return state.categories
-        },
-        categoryColors(state) {
-            let savedCats = JSON.parse(localStorage.getItem(cfg.lsKey.categoriesColors) ?? '[]')
-
-            for (let item of savedCats) {
-                state.categoryColors.set(item.name, item.color)
+            if (state.categories.length === 0) {
+                return  JSON.parse(localStorage.getItem(cfg.lsKey.categories) ?? '[]')
             }
-
-            return state.categoryColors
+            return state.categories
         },
         bgColor(state) {
             if (state.bgColor === '') {
                 return localStorage.getItem(cfg.lsKey.bgColor)
             }
             return state.bgColor
-        }
+        },
+        showQuickAdd(state) {
+            if (state.showQuickAdd === '') {
+                state.showQuickAdd = localStorage.getItem(cfg.lsKey.bgColor) ?? 'true'
+            }
+            return state.showQuickAdd === 'true'
+        },
     },
     mutations: {
         setListName(state, payload) {
             state.listFullName = payload
         },
         setCategories(state, categories) {
-            state.categories = categories
+            state.categories = saveCategories(categories, state.listFullName)
         },
         addCategory(state, category) {
             state.categories.push(category)
+            localStorage.setItem(cfg.lsKey.categories, JSON.stringify(state.categories))
         },
         addCategoryColor(state, item) {
-            state.categoryColors.set(item.name, item.color)
+            for (let i = 0; i < state.categories.length; ++i) {
+                if (state.categories[i].name === item.name) {
+                    state.categories[i].color = item.color
+                    break
+                }
+            }
+            localStorage.setItem(cfg.lsKey.categories, JSON.stringify(state.categories))
         },
         setBgColor(state, color) {
             localStorage.setItem(cfg.lsKey.bgColor, color)
             state.bgColor = color
+        },
+        setShowQuickAdd(state, isShow) {
+            localStorage.setItem(cfg.lsKey.showQuickAdd, isShow)
+            state.showQuickAdd = isShow
+        },
+        removeCategory(state, categoryName) {
+            state.categories = state.categories?.filter(item => item.name !== categoryName)
+            localStorage.setItem(cfg.lsKey.categories, JSON.stringify(state.categories))
+        },
+        updateCategory(state, data) {
+            for (let i = 0; i < state.categories.length; ++i) {
+                if (state.categories[i].name === data.oldName) {
+                    state.categories[i].name = data.newName
+                    break
+                }
+            }
+            localStorage.setItem(cfg.lsKey.categories, JSON.stringify(state.categories))
         },
     },
     actions: {
         setListName(store, name) {
             store.commit('setListName', name)
         },
-        addCategory(store, category) {
+        addCategory(store, name) {
+            let ts = new Date().getTime()
+            let  category = {
+                name: name,
+                date: ts,
+                isExpanded: true,
+                order: ts,
+                color: '#ffffff',
+            }
             store.commit('addCategory', category)
         },
         setCategories(store, taskList) {
@@ -72,10 +98,7 @@ export default {
                 cats.add(task.Category)
             }
 
-            let savedCats = localStorage.getItem(cfg.lsKey.categoriesColors) ??  '[]'
-
-            setColors(savedCats, cats)
-            store.commit('setCategories', Array.from(cats))
+            store.commit('setCategories', cats)
         },
         addCategoryColor(store, item) {
             store.commit('addCategoryColor', item)
@@ -83,42 +106,49 @@ export default {
         setBgColor(store, color) {
             store.commit('setBgColor', color)
         },
+        setShowQuickAdd(store, isShow) {
+            store.commit('setShowQuickAdd', isShow)
+        },
+        removeCategory(store, categoryName) {
+            store.commit('removeCategory', categoryName)
+        },
+        updateCategory(store, data) {
+            store.commit('updateCategory', data)
+        },
     }
 };
 
-function setColors(savedCats, taskCats) {
-    let catsObject = JSON.parse(savedCats)
-    let forSave = []
-
-    for (let cat of taskCats) {
-        let item = catsObject.find((i) => i.name === cat)
-
-        if (item !== undefined) {
-            forSave.push(item)
-        }
-    }
-
-    localStorage.setItem(cfg.lsKey.categoriesColors, JSON.stringify(forSave))
-}
-
-function saveCategories(cats) {
-    let savedCats = JSON.parse(localStorage.getItem(cfg.lsKey.categories) ??  '[]')
-    let forSave = []
+function saveCategories(cats, list) {
+    let savedCats = JSON.parse(localStorage.getItem(cfg.lsKey.categories) ?? '[]')
+    let catColors = JSON.parse(localStorage.getItem(cfg.lsKey.categoriesColors))
 
     for (let cat of cats) {
         let item = savedCats.find((i) => i.name === cat)
 
-        if (item !== undefined) {
-            forSave.push(item)
-        } else {
-            forSave.push({
+        if (item === undefined) {
+            let ts = new Date().getTime()
+            savedCats.push({
                 name: cat,
-                date: new Date().getTime(),
+                date: ts,
                 isExpanded: true,
+                order: ts,
+                color: '#ffffff',
+                list: list
             })
         }
     }
+    if (catColors !== null) {
+        for (let cat of catColors) {
+            for (let i = 0; i < savedCats.length; ++i) {
+                if (savedCats[i].name === cat.name) {
+                    savedCats[i].color = cat.color
+                    break
+                }
+            }
+        }
+        // localStorage.delete(cfg.lsKey.categoriesColors)
+    }
 
-    localStorage.setItem(cfg.lsKey.categories, JSON.stringify(forSave))
-    return forSave
+    localStorage.setItem(cfg.lsKey.categories, JSON.stringify(savedCats))
+    return savedCats
 }

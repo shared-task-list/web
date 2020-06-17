@@ -10,6 +10,7 @@ const routes = [
       { path: '/tasks/create', component: () => import('pages/TaskDetail.vue'), name: 'create', },
       { path: '/login', component: () => import('pages/Login.vue') },
       { path: '/settings', component: () => import('pages/Settings.vue'), name: 'settings' },
+      { path: '/categories', component: () => import('pages/CategoryList.vue'), name: 'categoryList' },
     ]
   }
 ]

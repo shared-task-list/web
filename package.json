@@ -12,8 +12,8 @@
     "web": "npx quasar dev",
     "pwa": "npx quasar dev -m pwa",
     "pwa build": "npx quasar build -m pwa",
-    "pwa deploy": "npx firebase deploy",
-    "electron": "quasar dev -m electron -- --no-sandbox --disable-setuid-sandbox",
+    "pwa deploy": "npx firebase deploy --project generalshoppinglist",
+    "electron": "quasar dev -m electron",
     "electron build": "quasar build --mode electron"
   },
   "dependencies": {

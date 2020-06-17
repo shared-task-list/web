@@ -13,7 +13,8 @@ export default {
         login: 'login',
         categoriesColors: 'categories_colors',
         categories: 'categories',
-        bgColor: 'bg_color'
+        bgColor: 'bg_color',
+        showQuickAdd: 'showQuickAdd',
     },
     noCategory: 'Без категории',
     version: 1,

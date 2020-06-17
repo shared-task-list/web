@@ -1,5 +1,4 @@
 import cfg from  'src/config'
-const _ = require('lodash');
 
 export default {
     namespaced: true,
@@ -13,12 +12,6 @@ export default {
         },
         taskMap(state) {
             return state.taskMap
-        },
-        categories(state) {
-            let arr = Array.from(state.categories)
-            arr = arr.filter((i) => i !== 'Без категории')
-            arr.unshift('Без категории')
-            return arr
         },
     },
     mutations: {
@@ -39,8 +32,8 @@ export default {
                 }
 
                 let taskArr = tasks.filter(task => task.Category === cat)
-                let sorted = _.orderBy(taskArr, [(item) => Date.parse(item.Timestamp), 'asc'])
-                state.taskMap.set(cat, sorted)
+                taskArr.sort(compareValues('Timestamp', 'asc'))
+                state.taskMap.set(cat, taskArr)
             }
         },
         removeTask(state, task) {
@@ -50,7 +43,6 @@ export default {
 
             if (catTasks.length === 0) {
                 newMap.delete(task.Category)
-                state.categories = state.categories.filter((cat) => cat !== task.Category)
             } else {
                 newMap.set(task.Category, catTasks)
             }
@@ -68,9 +60,6 @@ export default {
             let catTasks = state.tasks.filter(item => item.Category === task.Category)
             let newMap = new Map(state.taskMap)
 
-            if (catTasks.length === 0) {
-                state.categories.push(task.Category)
-            }
 
             newMap.set(task.Category, catTasks)
             state.taskMap = new Map(newMap)
@@ -96,3 +85,24 @@ export default {
         },
     }
 };
+
+function compareValues(key, order = 'asc') {
+    return function innerSort(a, b) {
+        if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
+            return 0;
+        }
+
+        const varA = (typeof a[key] === 'string') ? a[key].toUpperCase() : a[key];
+        const varB = (typeof b[key] === 'string') ? b[key].toUpperCase() : b[key];
+        let comparison = 0;
+
+        if (varA > varB) {
+            comparison = 1;
+        } else if (varA < varB) {
+            comparison = -1;
+        }
+        return (
+            (order === 'desc') ? (comparison * -1) : comparison
+        );
+    };
+}

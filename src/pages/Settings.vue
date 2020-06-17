@@ -14,6 +14,14 @@
                     <q-item-label caption>{{ name }}</q-item-label>
                 </q-item-section>
             </q-item>
+            <q-item tag="label" v-ripple @click="setShowQuickAdd">
+                <q-item-section>
+                    <q-item-label>Show Quick Add  Button</q-item-label>
+                </q-item-section>
+                <q-item-section avatar>
+                    <q-toggle color="blue" v-model="showQuickAdd" />
+                </q-item-section>
+            </q-item>
             <q-item clickable v-ripple @click="isShowColorPicker = true">
                 <q-item-section :style="{ color: getTextColor(bgColor) }">Background</q-item-section>
             </q-item>
@@ -104,11 +112,13 @@
             ...mapGetters('common', {
                 categories: 'categories',
                 bgColor: 'bgColor',
+                showQuickAdd: 'showQuickAdd',
             }),
         },
         methods: {
             ...mapActions('common', {
                 setBgColor: 'setBgColor',
+                setShowQuickAdd: 'setShowQuickAdd',
             }),
             setNewBgColor() {
                 if (this.newColor === '') {
@@ -135,8 +145,8 @@
             setDefaultCategory() {
 
             },
-            getTextColor(color) {
-                if (color === undefined) {
+            getTextColor(color) { // TODO: to util
+                if (color === undefined || color === null) {
                     return 'black'
                 }
 

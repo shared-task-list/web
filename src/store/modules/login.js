@@ -1,4 +1,4 @@
-import cfg from  '../../config'
+import cfg from 'src/config'
 
 export default {
     namespaced: true,

@@ -70,7 +70,6 @@
         computed: {
             ...mapGetters("task_list", {
                 tasks: "tasks",
-
             }),
             ...mapGetters("common", {
                 listFullName: "listName",
