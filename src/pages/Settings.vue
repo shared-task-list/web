@@ -132,8 +132,8 @@
 
                 for (let cat of this.categories)  {
                     this.groupOptions.push({
-                        label: cat,
-                        value: cat,
+                        label: cat.name,
+                        value: cat.name,
                     })
                 }
 

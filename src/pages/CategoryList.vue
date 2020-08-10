@@ -1,5 +1,7 @@
 <template>
     <q-page>
+        <p></p>
+        <p></p>
         <q-list>
             <q-item class="q-my-sm" v-for="cat in categories" :key="cat.name">
                 <q-item-section avatar>
@@ -27,7 +29,7 @@
         </q-list>
 
         <!-- add button -->
-        <q-page-sticky position="bottom-right" :offset="[18, 18]">
+        <q-page-sticky position="bottom-right" :offset="[18, 18]" class="bottom-btn">
             <div class="q-mt-md">
                 <q-btn
                     vertical-actions-align="left"
@@ -168,6 +170,7 @@ export default {
                 color: "black"
             });
             this.deletedCategory = "";
+            this.confirmDelete = false
         },
         deleteTask(task) {
             this.removeTask(task);

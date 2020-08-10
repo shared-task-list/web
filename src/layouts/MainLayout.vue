@@ -72,8 +72,9 @@
         <!-- back button -->
         <span v-if="this.showBackButton = $q.platform.is.ios || $q.platform.is.electron">
             <q-page-sticky
-                v-show="$router.currentRoute.fullPath !== '/tasks' && $router.currentRoute.fullPath !== '/login'"
-                position="bottom-left"
+                class="bottom-btn"
+                v-show="!disallowBackRoutes.includes($router.currentRoute.fullPath)"
+                position="bottom-right"
                 :offset="[18, 18]"
             >
                 <q-btn fab @click="back" external-label color="primary" icon="arrow_back" />
@@ -113,7 +114,13 @@ export default {
     data() {
         return {
             leftDrawerOpen: false,
-            showBackButton: true
+            showBackButton: true,
+            disallowBackRoutes: [
+                '/categories',
+                '/tasks',
+                '/login',
+                '/settings',
+            ]
         };
     },
     mounted() {},
@@ -217,9 +224,9 @@ export default {
         left: 68px;
     }
     #space-panel {
-        width: 110px;
-        max-width: 110px;
-        min-width: 110px;
+        width: 70px;
+        max-width: 70px;
+        min-width: 70px;
         background: #303b44;
         display: flex;
         flex-direction: column;

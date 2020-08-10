@@ -19,12 +19,13 @@
         </div>
         <div id="categories-container">
             <p :key="category" v-for="category in categories">
-                <q-radio v-model="task.Category" :val="category" :label="category" />
+                <q-radio v-model="task.Category" :val="category.name" :label="category.name" />
             </p>
         </div>
         <div id="button-container">
             <q-btn color="primary" :label="buttonTitle" @click="update()" />
         </div>
+        <div class="bottom-spacer"></div>
     </q-page>
 </template>
 

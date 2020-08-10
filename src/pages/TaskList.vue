@@ -56,10 +56,10 @@
                 </div>
             </div>
         </q-pull-to-refresh>
-        <div id="bottom-spacer"></div>
+        <div class="bottom-spacer"></div>
 
         <!-- menu button -->
-        <q-page-sticky position="bottom-right" :offset="[18, 18*3]">
+        <q-page-sticky class="bottom-btn" position="bottom-right" :offset="[18, 18]">
             <div class="q-mt-md">
                 <q-fab
                     external-label
@@ -102,7 +102,7 @@
         </q-page-sticky>
 
         <!-- add button -->
-        <q-page-sticky position="bottom-right" :offset="[18*5, 18*3]">
+        <q-page-sticky class="bottom-btn" position="bottom-right" :offset="[18*5, 18]">
             <div class="q-mt-md">
                 <q-btn
                     vertical-actions-align="left"
@@ -215,7 +215,7 @@ export default {
             isShowColorPicker: false,
             groupOptions: [],
             newColor: "",
-            colorCategory: ""
+            colorCategory: "",
         };
     },
     mounted() {
@@ -413,9 +413,6 @@ export default {
 </script>
 
 <style scoped>
-#bottom-spacer {
-    padding-bottom: 90px;
-}
 @media (min-width: 992px) {
     #bottom-spacer {
         padding-bottom: 300px;
@@ -477,4 +474,6 @@ export default {
 .btn-add-container {
     text-align: center;
 }
+
+
 </style>

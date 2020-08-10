@@ -16,7 +16,7 @@ export default {
             if (state.categories.length === 0) {
                 return  JSON.parse(localStorage.getItem(cfg.lsKey.categories) ?? '[]')
             }
-            return state.categories
+            return state.categories.filter(i => i.list === state.listFullName)
         },
         bgColor(state) {
             if (state.bgColor === '') {
@@ -39,6 +39,7 @@ export default {
             state.categories = saveCategories(categories, state.listFullName)
         },
         addCategory(state, category) {
+            category.list = state.listFullName
             state.categories.push(category)
             localStorage.setItem(cfg.lsKey.categories, JSON.stringify(state.categories))
         },
@@ -146,7 +147,7 @@ function saveCategories(cats, list) {
                 }
             }
         }
-        // localStorage.delete(cfg.lsKey.categoriesColors)
+        localStorage.removeItem(cfg.lsKey.categoriesColors)
     }
 
     localStorage.setItem(cfg.lsKey.categories, JSON.stringify(savedCats))

@@ -48,3 +48,16 @@ export default {
     }
 }
 </script>
+<style>
+    .bottom-btn {
+        bottom: 48px;
+    }
+    .bottom-spacer {
+        padding-bottom: 90px;
+    }
+    @media (min-width: 992px) {
+        .bottom-btn {
+            bottom: 0;
+        }
+    }
+</style>
