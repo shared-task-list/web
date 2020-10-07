@@ -25,6 +25,9 @@
             <q-item clickable v-ripple @click="isShowColorPicker = true">
                 <q-item-section :style="{ color: getTextColor(bgColor) }">Background</q-item-section>
             </q-item>
+            <div id="logout-btn-container">
+                <q-btn flat rounded color="red" label="Logout" @click="logout" />
+            </div>
         </q-list>
 
         <!-- color dialog-->
@@ -59,7 +62,7 @@
 
                 <q-card-actions align="right" class="text-primary">
                     <q-btn flat label="Cancel" v-close-popup />
-                    <q-btn flat label="Set default" v-close-popup @click="setDefaultCategory" />
+                    <q-btn flat label="Set default" v-close-popup @click="setDefaultCategoryHandler" />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -95,30 +98,33 @@
         data() {
             return {
                 name: '',
-                defaultCategory: '',
+                // defaultCategory: '',
                 isShowColorPicker: false,
                 isShowDefaultCategory: false,
                 isShowName: false,
-                categoryForNewTask: cfg.noCategory,
+                categoryForNewTask: '',
                 groupOptions: [],
                 newColor: '',
             }
         },
         mounted() {
             this.name = localStorage.getItem(cfg.lsKey.login)
-            this.defaultCategory = cfg.noCategory
+            // this.defaultCategory = cfg.noCategory
+            this.categoryForNewTask = this.defaultCategory
         },
         computed: {
             ...mapGetters('common', {
                 categories: 'categories',
                 bgColor: 'bgColor',
                 showQuickAdd: 'showQuickAdd',
+                defaultCategory: 'defaultCategory',
             }),
         },
         methods: {
             ...mapActions('common', {
                 setBgColor: 'setBgColor',
                 setShowQuickAdd: 'setShowQuickAdd',
+                setDefaultCategory: 'setDefaultCategory',
             }),
             setNewBgColor() {
                 if (this.newColor === '') {
@@ -142,8 +148,8 @@
             setName() {
                 localStorage.setItem(cfg.lsKey.login, this.name)
             },
-            setDefaultCategory() {
-
+            setDefaultCategoryHandler() {
+                this.setDefaultCategory(this.categoryForNewTask)
             },
             getTextColor(color) { // TODO: to util
                 if (color === undefined || color === null) {
@@ -157,10 +163,19 @@
 
                 return (brightness > 125) ? 'black' : 'white';
             },
+            logout() {
+
+            }
         }
     }
 </script>
 
 <style scoped>
-
+#logout-btn-container {
+    margin-top: 30px;
+    text-align: center;
+    color: red;
+    font-weight: bold;
+    font-size: 20px;
+}
 </style>

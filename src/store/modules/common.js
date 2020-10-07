@@ -7,6 +7,7 @@ export default {
         categories: [],
         bgColor: '',
         showQuickAdd: '',
+        defaultCategory: '',
     },
     getters: {
         listName(state) {
@@ -30,6 +31,12 @@ export default {
             }
             return state.showQuickAdd === 'true'
         },
+        defaultCategory(state) {
+            if (state.defaultCategory === '') {
+                state.defaultCategory = localStorage.getItem(cfg.lsKey.defaultCategory)
+            }
+            return state.defaultCategory
+        }
     },
     mutations: {
         setListName(state, payload) {
@@ -73,6 +80,10 @@ export default {
             }
             localStorage.setItem(cfg.lsKey.categories, JSON.stringify(state.categories))
         },
+        setDefaultCategory(state, catName) {
+            localStorage.setItem(cfg.lsKey.defaultCategory, catName)
+            state.defaultCategory = catName
+        },
     },
     actions: {
         setListName(store, name) {
@@ -115,6 +126,9 @@ export default {
         },
         updateCategory(store, data) {
             store.commit('updateCategory', data)
+        },
+        setDefaultCategory(store, catName) {
+            store.commit('setDefaultCategory', catName)
         },
     }
 };

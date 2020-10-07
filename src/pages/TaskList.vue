@@ -4,6 +4,7 @@
             <div class="task-container" :style="{ backgroundColor: bgColor }">
                 <div :key="cat.name" v-for="cat in categories" class="task-list">
                     <q-expansion-item
+                        v-if="taskMap.get(cat.name) !== undefined"
                         default-opened
                         :header-style="{ fontSize: '24px', marginTop: '25px' }"
                     >
@@ -32,14 +33,11 @@
                         </div>
                         <div :key="task.Uid" v-for="task in taskMap.get(cat.name)">
                             <div class="row task-row-container">
-                                <div
-                                    class="task-title"
-                                    :style="{ backgroundColor: cat.color }"
-                                >
+                                <div class="task-title" :style="{ backgroundColor: cat.color }">
                                     <router-link :to="{ name: 'taskDetail', params: { id: task.Uid }}">
-                                        <div :style="{ color: getTextColor(cat.color) }">
-                                            {{ task.Title }}
-                                        </div>
+                                        <div
+                                            :style="{ color: getTextColor(cat.color) }"
+                                        >{{ task.Title }}</div>
                                     </router-link>
                                 </div>
                                 <q-btn
@@ -58,8 +56,27 @@
         </q-pull-to-refresh>
         <div class="bottom-spacer"></div>
 
-        <!-- menu button -->
-        <q-page-sticky class="bottom-btn" position="bottom-right" :offset="[18, 18]">
+        <!-- control buttons -->
+        <div id="control-buttons" :class="{
+            'control-buttons-bottom-ios': $q.platform.is.ios,
+            'control-buttons-bottom': !$q.platform.is.ios,
+        }">
+            <!-- add button -->
+            <div class="q-mt-md">
+                <q-btn
+                    vertical-actions-align="left"
+                    label-position="left"
+                    color="primary"
+                    icon="add"
+                    round
+                    size="19px"
+                    @click="showQuickAddDialog"
+                ></q-btn>
+            </div>
+            <div style="width: 10px;">
+
+            </div>
+            <!-- menu button -->
             <div class="q-mt-md">
                 <q-fab
                     external-label
@@ -99,22 +116,7 @@
                     />
                 </q-fab>
             </div>
-        </q-page-sticky>
-
-        <!-- add button -->
-        <q-page-sticky class="bottom-btn" position="bottom-right" :offset="[18*5, 18]">
-            <div class="q-mt-md">
-                <q-btn
-                    vertical-actions-align="left"
-                    label-position="left"
-                    color="primary"
-                    icon="add"
-                    round
-                    size="18px"
-                    @click="showQuickAddDialog"
-                ></q-btn>
-            </div>
-        </q-page-sticky>
+        </div>
 
         <!-- add category modal-->
         <q-dialog v-model="isShowAddCategory">
@@ -232,10 +234,10 @@ export default {
         // init firebase database
         this.db = firebase.database();
         this.setTasks();
-        this.db.ref(this.listName).on("child_added", snapshot => {
+        this.db.ref(this.listName).on("child_added", (snapshot) => {
             this.addTask(snapshot.val());
         });
-        this.db.ref(this.listName).on("child_removed", snapshot => {
+        this.db.ref(this.listName).on("child_removed", (snapshot) => {
             this.removeTask(snapshot.val());
         });
 
@@ -247,31 +249,32 @@ export default {
         }
 
         // show quick add button
-        this.showQuickAdd = localStorage.getItem(cfg.lsKey.showQuickAdd) ?? true;
+        this.showQuickAdd =
+            localStorage.getItem(cfg.lsKey.showQuickAdd) ?? true;
     },
     computed: {
         ...mapGetters("task_list", {
             tasks: "tasks",
-            taskMap: "taskMap"
+            taskMap: "taskMap",
         }),
         ...mapGetters("common", {
             listName: "listName",
             categories: "categories",
-            bgColor: "bgColor"
-            // showQuickAdd: 'showQuickAdd',
-        })
+            bgColor: "bgColor",
+            defaultCategory: 'defaultCategory',
+        }),
     },
     methods: {
         ...mapActions("task_list", {
             loadTasks: "loadTasks",
             removeTask: "removeTask",
             addTask: "addTask",
-            clear: "clear"
+            clear: "clear",
         }),
         ...mapActions("common", {
             setCategories: "setCategories",
             addCategory: "addCategory",
-            addCategoryColor: "addCategoryColor"
+            addCategoryColor: "addCategoryColor",
         }),
         showQuickAddDialog() {
             this.groupOptions = [];
@@ -283,6 +286,7 @@ export default {
                 });
             }
 
+            this.categoryForNewTask = this.defaultCategory;
             this.isShowAddTask = true;
         },
         addInCategory(category) {
@@ -298,7 +302,7 @@ export default {
 
             this.$q.notify({
                 message: `Category '${this.newCategory}' is added`,
-                color: "black"
+                color: "black",
             });
 
             this.newCategory = "";
@@ -318,7 +322,7 @@ export default {
                 AuthorUid: "",
                 Category: this.categoryForNewTask,
                 Title: this.newTaskTitle,
-                Uid: uid
+                Uid: uid,
             };
             this.db.ref(this.listName + "/" + uid).set(task);
             this.addTask(task);
@@ -326,7 +330,7 @@ export default {
 
             this.$q.notify({
                 message: `Task '${task.Title}' is added`,
-                color: "black"
+                color: "black",
             });
         },
         deleteTask(task) {
@@ -335,14 +339,14 @@ export default {
 
             this.$q.notify({
                 message: `Task '${task.Title}' is done`,
-                color: "black"
+                color: "black",
             });
         },
         setTasks(done) {
-            this.db.ref(this.listName).once("value", snapshot => {
+            this.db.ref(this.listName).once("value", (snapshot) => {
                 this.clear();
                 let tasks = [];
-                snapshot.forEach(childSnapshot => {
+                snapshot.forEach((childSnapshot) => {
                     if (childSnapshot.val().Comment !== "service task") {
                         tasks.push(childSnapshot.val());
                     }
@@ -363,10 +367,10 @@ export default {
             let savedCats = JSON.parse(
                 localStorage.getItem(cfg.lsKey.categoriesColors) ?? "[]"
             );
-            let existing = savedCats.find(i => i.name === this.colorCategory);
+            let existing = savedCats.find((i) => i.name === this.colorCategory);
             let item = {
                 name: this.colorCategory,
-                color: this.newColor
+                color: this.newColor,
             };
 
             if (existing === undefined) {
@@ -389,7 +393,7 @@ export default {
 
             this.$q.notify({
                 message: `New color for Category ${this.colorCategory}`,
-                color: "black"
+                color: "black",
             });
         },
         getTextColor(color) {
@@ -408,15 +412,23 @@ export default {
 
             return brightness > 125 ? "black" : "white";
         },
-    }
+    },
 };
 </script>
 
 <style scoped>
-@media (min-width: 992px) {
-    #bottom-spacer {
-        padding-bottom: 300px;
-    }
+#control-buttons {
+    display: flex;
+    flex-direction: row;
+    position: fixed;
+
+    right: 10px;
+}
+.control-buttons-bottom {
+    bottom: 60px;
+}
+.control-buttons-bottom-ios {
+    bottom: 75px;
 }
 .row a {
     text-decoration: none;
@@ -430,20 +442,7 @@ export default {
     align-items: flex-start;
     align-content: stretch;
 }
-@media (min-width: 992px) {
-    .task-container {
-        padding-left: 10px;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        align-items: flex-start;
-        align-content: stretch;
-    }
-    .task-row-container {
-        margin-right: 20px;
-    }
-}
+
 .task-list {
     flex: 0 1 auto;
     align-self: stretch;
@@ -475,5 +474,21 @@ export default {
     text-align: center;
 }
 
-
+@media (min-width: 992px) {
+    #control-buttons {
+        bottom: 10px !important;
+    }
+    .task-container {
+        padding-left: 10px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: flex-start;
+        align-content: stretch;
+    }
+    .task-row-container {
+        margin-right: 20px;
+    }
+}
 </style>

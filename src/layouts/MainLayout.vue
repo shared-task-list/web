@@ -81,7 +81,7 @@
             </q-page-sticky>
         </span>
 
-        <q-footer elevated id="footer">
+        <q-footer elevated id="footer" :class="{ iosh: $q.platform.is.ios }">
             <q-toolbar id="toolbar">
                 <q-toolbar-title class="toolbar-item">
                     <router-link to="/tasks">
@@ -175,6 +175,7 @@ export default {
 </script>
 
 <style>
+/* tablet | phone */
 #main-layout {
     display: flex;
     flex-direction: row;
@@ -193,6 +194,7 @@ export default {
 #footer {
     position: fixed;
     bottom: 0;
+    visibility: visible;
 }
 #toolbar {
     display: flex;
@@ -201,9 +203,6 @@ export default {
     justify-content: space-around;
     align-items: flex-start;
     align-content: stretch;
-}
-#footer {
-    visibility: visible;
 }
 .toolbar-item {
     flex: 0 1 auto;
@@ -216,6 +215,11 @@ export default {
     width: 0;
 }
 
+.iosh {
+    height: 65px !important;
+}
+
+/* monitor */
 @media (min-width: 992px) {
     .q-header {
         left: 65px;
@@ -237,7 +241,7 @@ export default {
         visibility: visible;
     }
     #footer {
-        visibility: hidden;
+        visibility: collapse;
     }
 }
 </style>

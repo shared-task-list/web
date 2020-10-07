@@ -15,6 +15,7 @@ export default {
         categories: 'categories',
         bgColor: 'bg_color',
         showQuickAdd: 'showQuickAdd',
+        defaultCategory: 'defaultCategory',
     },
     noCategory: 'Без категории',
     version: 1,

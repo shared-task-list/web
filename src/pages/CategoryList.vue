@@ -27,21 +27,23 @@
                 </q-item-section>
             </q-item>
         </q-list>
+        <div class="bottom-spacer"></div>
 
         <!-- add button -->
-        <q-page-sticky position="bottom-right" :offset="[18, 18]" class="bottom-btn">
-            <div class="q-mt-md">
-                <q-btn
-                    vertical-actions-align="left"
-                    label-position="left"
-                    color="primary"
-                    icon="add"
-                    round
-                    size="18px"
-                    @click="isShowAddCategory = true"
-                ></q-btn>
-            </div>
-        </q-page-sticky>
+        <div class="q-mt-md" id="control-buttons" :class="{
+            'control-buttons-bottom-ios': $q.platform.is.ios,
+            'control-buttons-bottom': !$q.platform.is.ios,
+        }">
+            <q-btn
+                vertical-actions-align="left"
+                label-position="left"
+                color="primary"
+                icon="add"
+                round
+                size="19px"
+                @click="isShowAddCategory = true"
+            ></q-btn>
+        </div>
 
         <!-- add category modal-->
         <q-dialog v-model="isShowAddCategory">
@@ -214,7 +216,26 @@ export default {
 </script>
 
 <style scoped>
+/* tablet | phone */
 #confirm-header {
     padding-left: 15px;
+}
+#control-buttons {
+    position: fixed;
+    right: 10px;
+}
+.control-buttons-bottom {
+    bottom: 60px;
+}
+.control-buttons-bottom-ios {
+    bottom: 75px;
+}
+
+
+/* monitor */
+@media (min-width: 992px) {
+    #control-buttons {
+        bottom: 10px !important;
+    }
 }
 </style>
