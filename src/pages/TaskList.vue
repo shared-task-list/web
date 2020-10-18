@@ -19,7 +19,9 @@
                                     icon="palette"
                                 />
                             </q-item-section>
-                            <q-item-section :style="{ color: getTextColor(bgColor) }">{{ cat.name }}</q-item-section>
+                            <q-item-section class="category-title" :style="{ color: getTitleColor(cat.color) }">
+                                {{ cat.name }}
+                            </q-item-section>
                         </template>
 
                         <div class="full-width btn-add-container">
@@ -286,7 +288,6 @@ export default {
                 });
             }
 
-            this.categoryForNewTask = this.defaultCategory;
             this.isShowAddTask = true;
         },
         addInCategory(category) {
@@ -397,7 +398,6 @@ export default {
             });
         },
         getTextColor(color) {
-            // TODO: to util
             if (color === undefined || color === null) {
                 return "black";
             }
@@ -411,6 +411,21 @@ export default {
             );
 
             return brightness > 125 ? "black" : "white";
+        },
+        getTitleColor(color) {
+            if (color === undefined || color === null || color  === '' || color === 'white' || color === '#ffffff') {
+                const rgb = hexToRgb(color);
+                const brightness = Math.round(
+                    (parseInt(rgb.r) * 299 +
+                        parseInt(rgb.g) * 587 +
+                        parseInt(rgb.b) * 114) /
+                    1000
+                );
+
+                return brightness > 125 ? "black" : "white";
+            }
+
+            return color;
         },
     },
 };
@@ -472,6 +487,9 @@ export default {
 }
 .btn-add-container {
     text-align: center;
+}
+.category-title  {
+    font-weight: 500;
 }
 
 @media (min-width: 992px) {

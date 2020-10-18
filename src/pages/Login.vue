@@ -152,7 +152,6 @@
                         this.$router.replace({ path: 'tasks', replace: true })
                     })
                 })
-               
             },
             openList(event) {
                 event.preventDefault()

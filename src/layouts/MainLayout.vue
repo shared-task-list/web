@@ -1,6 +1,6 @@
 <template>
     <q-layout id="main-layout" view="hHh Lpr lff" class="shadow-2 rounded-borders">
-        <q-header elevated>
+        <!--<q-header elevated>
             <q-toolbar>
                 <q-btn
                     flat
@@ -14,7 +14,7 @@
 
                 <q-toolbar-title>Shared Task List</q-toolbar-title>
             </q-toolbar>
-        </q-header>
+        </q-header>-->
 
         <aside id="space-panel">
             <div style="position: fixed; width: 100px">
@@ -38,6 +38,15 @@
                     </router-link>
                 </q-toolbar-title>
                 <q-toolbar-title class="toolbar-item">
+                    <router-link to="/lists">
+                        <q-btn class="vertical-icon" round flat color="white" icon="view_list">
+                            <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
+                                <strong>Lists</strong>
+                            </q-tooltip>
+                        </q-btn>
+                    </router-link>
+                </q-toolbar-title>
+                <q-toolbar-title class="toolbar-item">
                     <router-link to="/settings">
                         <q-btn class="vertical-icon" round flat color="white" icon="settings">
                             <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
@@ -49,7 +58,7 @@
             </div>
         </aside>
 
-        <q-drawer
+        <!--<q-drawer
             :class="{ 'drawer': $q.platform.is.desktop }"
             v-model="leftDrawerOpen"
             show-if-above
@@ -63,7 +72,7 @@
                     <q-item-section @click="openLastList(list)">{{ list.name }}</q-item-section>
                 </q-item>
             </q-list>
-        </q-drawer>
+        </q-drawer>-->
 
         <q-page-container style="width: 100%;">
             <router-view />
@@ -94,6 +103,11 @@
                     </router-link>
                 </q-toolbar-title>
                 <q-toolbar-title class="toolbar-item">
+                    <router-link to="/lists">
+                        <q-btn round flat color="white" icon="view_list" />
+                    </router-link>
+                </q-toolbar-title>
+                <q-toolbar-title class="toolbar-item">
                     <router-link to="/settings">
                         <q-btn round flat color="white" icon="settings" />
                     </router-link>
@@ -120,6 +134,7 @@ export default {
                 '/tasks',
                 '/login',
                 '/settings',
+                '/lists',
             ]
         };
     },
@@ -138,12 +153,8 @@ export default {
             loadTasks: "loadTasks",
             clear: "clear"
         }),
-        openLastList(list) {
+        /*openLastList(list) {
             let db = firebase.database();
-
-            if (window.innerWidth < 992) {
-                this.leftDrawerOpen = false;
-            }
 
             localStorage.setItem(cfg.lsKey.lastList, list.hash);
             localStorage.setItem(cfg.lsKey.taskList, list.name);
@@ -166,7 +177,7 @@ export default {
                     this.$router.replace({ path: "tasks", replace: true });
                 }
             });
-        },
+        },*/
         back() {
             this.$router.go(-1);
         }

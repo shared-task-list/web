@@ -49,6 +49,10 @@ export default {
 }
 </script>
 <style>
+
+    body {
+        font-family: "Ubuntu";
+    }
     .bottom-btn {
         bottom: 48px;
     }

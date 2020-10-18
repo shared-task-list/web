@@ -8,15 +8,23 @@ export default {
         bgColor: '',
         showQuickAdd: '',
         defaultCategory: '',
+        currentList: ''
     },
     getters: {
         listName(state) {
             return state.listFullName
         },
+        currentList(state) {
+            if (state.currentList === '') {
+                state.currentList = localStorage.getItem(cfg.lsKey.taskList ?? '')
+            }
+            return state.currentList
+        },
         categories(state) {
             if (state.categories.length === 0) {
-                return  JSON.parse(localStorage.getItem(cfg.lsKey.categories) ?? '[]')
+                state.categories =  JSON.parse(localStorage.getItem(cfg.lsKey.categories) ?? '[]')
             }
+            state.categories = state.categories.filter(i => i.name !== undefined && i.name !== '')
             return state.categories.filter(i => i.list === state.listFullName)
         },
         bgColor(state) {
@@ -33,7 +41,13 @@ export default {
         },
         defaultCategory(state) {
             if (state.defaultCategory === '') {
-                state.defaultCategory = localStorage.getItem(cfg.lsKey.defaultCategory)
+                let cat = localStorage.getItem(cfg.lsKey.defaultCategory)
+
+                if (cat != null) {
+                    state.defaultCategory = cat
+                } else {
+                    state.defaultCategory = ''
+                }
             }
             return state.defaultCategory
         }
