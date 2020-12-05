@@ -1,20 +1,5 @@
 <template>
-    <q-layout id="main-layout" view="hHh Lpr lff" class="shadow-2 rounded-borders">
-        <!--<q-header elevated>
-            <q-toolbar>
-                <q-btn
-                    flat
-                    dense
-                    round
-                    icon="menu"
-                    aria-label="Menu"
-                    @click="leftDrawerOpen = !leftDrawerOpen"
-                    v-if="lastLists.length > 0"
-                />
-
-                <q-toolbar-title>Shared Task List</q-toolbar-title>
-            </q-toolbar>
-        </q-header>-->
+    <q-layout id="main-layout" class="shadow-2 rounded-borders">
 
         <aside id="space-panel">
             <div style="position: fixed; width: 100px">
@@ -58,36 +43,21 @@
             </div>
         </aside>
 
-        <!--<q-drawer
-            :class="{ 'drawer': $q.platform.is.desktop }"
-            v-model="leftDrawerOpen"
-            show-if-above
-            bordered
-            content-class="bg-grey-1"
-            v-if="lastLists.length > 0"
-        >
-            <q-list separator>
-                <q-item-label header class="text-grey-8">Last Lists</q-item-label>
-                <q-item clickable v-ripple v-for="list in lastLists" :key="list.name">
-                    <q-item-section @click="openLastList(list)">{{ list.name }}</q-item-section>
-                </q-item>
-            </q-list>
-        </q-drawer>-->
-
         <q-page-container style="width: 100%;">
             <router-view />
         </q-page-container>
 
         <!-- back button -->
-        <span v-if="this.showBackButton = $q.platform.is.ios || $q.platform.is.electron">
-            <q-page-sticky
-                class="bottom-btn"
-                v-show="!disallowBackRoutes.includes($router.currentRoute.fullPath)"
-                position="bottom-right"
-                :offset="[18, 18]"
-            >
-                <q-btn fab @click="back" external-label color="primary" icon="arrow_back" />
-            </q-page-sticky>
+        <span
+            id="back-button"
+            :class="{
+                'control-buttons-bottom-ios': $q.platform.is.ios,
+                'control-buttons-bottom': !$q.platform.is.ios,
+            }"
+            v-if="this.showBackButton = $q.platform.is.ios || $q.platform.is.electron"
+            v-show="!disallowBackRoutes.includes($router.currentRoute.fullPath)"
+        >
+            <q-btn fab @click="back" external-label color="primary" icon="arrow_back" />
         </span>
 
         <q-footer elevated id="footer" :class="{ iosh: $q.platform.is.ios }">
@@ -153,31 +123,6 @@ export default {
             loadTasks: "loadTasks",
             clear: "clear"
         }),
-        /*openLastList(list) {
-            let db = firebase.database();
-
-            localStorage.setItem(cfg.lsKey.lastList, list.hash);
-            localStorage.setItem(cfg.lsKey.taskList, list.name);
-            this.setListName(list.hash);
-
-            let route = this.$router.currentRoute;
-
-            db.ref(list.hash).once("value", snapshot => {
-                this.clear();
-                let tasks = [];
-                snapshot.forEach(childSnapshot => {
-                    if (childSnapshot.val().Comment !== "service task") {
-                        tasks.push(childSnapshot.val());
-                    }
-                });
-                this.setCategories(tasks);
-                this.loadTasks(tasks);
-
-                if (route.path !== "/tasks") {
-                    this.$router.replace({ path: "tasks", replace: true });
-                }
-            });
-        },*/
         back() {
             this.$router.go(-1);
         }
@@ -224,6 +169,16 @@ export default {
 }
 #space-panel {
     width: 0;
+}
+#back-button {
+    position: fixed;
+    right: 10px;
+}
+.control-buttons-bottom {
+    bottom: 10px;
+}
+.control-buttons-bottom-ios {
+    bottom: 75px;
 }
 
 .iosh {

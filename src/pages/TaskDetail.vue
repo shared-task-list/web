@@ -1,5 +1,8 @@
 <template>
-    <q-page id="detail-container"  class="col">
+    <q-page id="detail-container">
+        <div id="task-author">
+            {{ task.Author }} - {{ taskDate }}
+        </div>
 
         <div class="q-pa-md">
             <q-input
@@ -30,6 +33,7 @@
 </template>
 
 <script>
+    import { date } from 'quasar'
     import {mapGetters} from "vuex";
     import cfg from "../config";
     import firebase from "firebase";
@@ -45,6 +49,7 @@
                 db: null,
                 isUpdate: false,
                 buttonTitle: '',
+                taskDate:  ''
             }
         },
         created() {
@@ -67,6 +72,8 @@
             if (taskList !== null && taskList !== undefined) {
                 this.currentListName = taskList
             }
+
+            this.taskDate = this.getTaskDate(this.task.Timestamp)
         },
         computed: {
             ...mapGetters("task_list", {
@@ -104,21 +111,30 @@
                     })
                 }
             },
+            getTaskDate() {
+                const taskDate = new Date(this.task.Timestamp)
+                return date.formatDate(taskDate, 'DD MMMM YYYY HH:mm')
+            }
         }
     }
 </script>
 
 <style scoped>
-    #detail-container {
-        text-align: center;
-    }
-
-    #categories-container {
-        text-align: left;
-        margin-left: 30px;
-    }
-
-    #button-container {
-        margin-top: 30px;
-    }
+#task-author {
+    text-align: left;
+    margin-left: 16px;
+    margin-top: 16px;
+    color: #bbc;
+    font-weight: bold;
+}
+#detail-container {
+    text-align: center;
+}
+#categories-container {
+    text-align: left;
+    margin-left: 30px;
+}
+#button-container {
+    margin-top: 30px;
+}
 </style>
