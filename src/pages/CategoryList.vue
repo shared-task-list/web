@@ -1,7 +1,6 @@
 <template>
     <q-page>
-        <p></p>
-        <p></p>
+        <br/>
         <q-list>
             <q-item class="q-my-sm" v-for="cat in categories" :key="cat.name">
                 <q-item-section avatar>

@@ -32,10 +32,13 @@
 
         <!-- color dialog-->
         <q-dialog v-model="isShowColorPicker">
-            <q-card style="min-width: 350px">
-                <q-badge color="grey-3" text-color="black" class="q-mb-sm">
-                    {{ newColor }}
-                </q-badge>
+            <q-card id="color-dialog-card">
+                <div id="color-preview-container">
+                    <div id="new-color-preview" :style="{ background: newColor }"></div>
+                    <span v-if="newColor !== ''">Selected Color</span>
+                    <span v-if="newColor === ''">No Selected Color</span>
+                </div>
+
                 <q-color v-model="newColor" no-header class="my-picker" default-view="palette" />
 
                 <q-card-actions align="right" class="text-primary">
@@ -177,5 +180,23 @@
     color: red;
     font-weight: bold;
     font-size: 20px;
+}
+#color-dialog-card {
+    width: 350px;
+}
+#color-preview-container {
+    height: 50px;
+    display: flex;
+    flex-direction: row;
+}
+#color-preview-container span {
+    margin-top: 14px;
+    margin-left: 10px;
+}
+#new-color-preview {
+    height: 40px;
+    width: 40px;
+    border-radius: 20px;
+    margin: 5px 0 5px 5px;
 }
 </style>

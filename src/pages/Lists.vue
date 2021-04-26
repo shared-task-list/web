@@ -1,8 +1,7 @@
 <template>
     <q-page>
+        <br>
 <!--        <h4>Lists</h4>-->
-        <p></p>
-        <p></p>
         <q-list>
             <q-item clickable v-ripple class="q-my-sm" v-for="list in lastLists" :key="list.name" @click="openLastList(list)">
                 <q-item-section avatar>
@@ -10,23 +9,24 @@
                 </q-item-section>
 
                 <q-item-section>
-                    <q-item-label>
-                        {{ list.name }}
-                        <span v-if="list.name === currentList">(current)</span>
-                    </q-item-label>
+                    {{ list.name }}
+                </q-item-section>
+
+                <q-item-section side>
+                    <span v-if="list.name === currentList">current</span>
                 </q-item-section>
 
                 <!--<q-item-section side>
                     <q-btn flat round color="primary" icon="edit" @click="showEditList(list.name)" />
-                </q-item-section>
+                </q-item-section>-->
 
-                <q-item-section side>
-                    <q-btn
-                        flat
-                        round
-                        color="primary"
-                        icon="delete"
-                        @click="showConfirmDelete(list.name)"
+                <!--<q-item-section side>
+                    <q-btn class="delete-btn"
+                            flat
+                            round
+                            color="primary"
+                            icon="delete"
+                            @click="showConfirmDelete(list.name)"
                     />
                 </q-item-section>-->
             </q-item>
@@ -106,9 +106,9 @@
                     <span id="confirm-header" class="text-h6">Delete {{ deletedList }}</span>
                 </q-card-section>
                 <q-card-section class="row items-center">
-                    <span
-                        class="q-ml-sm"
-                    >All tasks in list {{ deletedList }} will be deleted</span>
+                    <span class="q-ml-sm">
+                        All tasks in list {{ deletedList }} will be deleted
+                    </span>
                 </q-card-section>
 
                 <q-card-actions align="right">
@@ -153,33 +153,22 @@ export default {
             currentList: "currentList",
             listName: "listName"
         }),
-        // ...mapGetters("task_list", {
-        //     tasks: "tasks",
-        //     taskMap: "taskMap"
-        // }),
         ...mapGetters("login", {
             lastLists: "lastLists"
         })
     },
     methods: {
-        // ...mapActions("common", {
-        //     addCategory: "addCategory",
-        //     removeCategory: "removeCategory",
-        //     updateCategory: "updateCategory"
-        // }),
-        // ...mapActions("task_list", {
-        //     removeTask: "removeTask"
-        // }),
         ...mapActions("common", {
             setListName: "setListName",
             setCategories: "setCategories"
         }),
         ...mapActions("task_list", {
             loadTasks: "loadTasks",
-            clear: "clear"
+            clear: "clear",
+            removeTask: "removeTask"
         }),
         deleteList() {
-            /*this.removeCategory(this.deletedList);
+            this.removeCategory(this.deletedList);
 
             if (this.taskMap.get(this.deletedList)) {
                 for (const task of this.taskMap.get(this.deletedList)) {
@@ -192,7 +181,7 @@ export default {
                 color: "black"
             });
             this.deletedList = "";
-            this.confirmDelete = false*/
+            this.confirmDelete = false
         },
         deleteTask(task) {
             this.removeTask(task);
@@ -241,7 +230,7 @@ export default {
                 })
             })
         },
-        editList() {
+        // editList() {
             // for (let task of this.taskMap.get(this.listForEdit)) {
             //     let updTask = { ...task }
             //     updTask.Category = this.newListName;
@@ -256,14 +245,14 @@ export default {
             // });
             // this.listForEdit = '';
             // this.newListName = '';
-        },
+        // },
         showEditList(category) {
             this.listForEdit = category;
             this.newListName = category;
             this.isShowEditList = true;
         },
-        showConfirmDelete(category) {
-            this.deletedList = category;
+        showConfirmDelete(list) {
+            this.deletedList = list;
             this.confirmDelete = true;
         },
         openLastList(list) {
@@ -271,7 +260,7 @@ export default {
             localStorage.setItem(cfg.lsKey.taskList, list.name);
             this.setListName(list.hash);
 
-            let route = this.$router.currentRoute;
+            const route = this.$router.currentRoute;
 
             this.db.ref(list.hash).once("value", snapshot => {
                 this.clear();
@@ -307,6 +296,9 @@ export default {
 }
 .control-buttons-bottom-ios {
     bottom: 75px;
+}
+.delete-btn {
+    z-index: 999;
 }
 
 
